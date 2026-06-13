@@ -1,26 +1,355 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ============================================================
+   CabinStream design system — premium in-car streaming launcher
+   ============================================================ */
+
+@theme {
+  /* Background layers */
+  --color-bg-base: #07090d;
+  --color-bg-raised: #0e1218;
+  --color-bg-overlay: #12161e;
+
+  /* Text */
+  --color-text-primary: rgba(255, 255, 255, 0.96);
+  --color-text-secondary: rgba(255, 255, 255, 0.72);
+  --color-text-tertiary: rgba(255, 255, 255, 0.5);
+
+  /* Accent */
+  --color-accent-cyan: #22d3ee;
+  --color-accent-violet: #7c3aed;
+  --color-accent-solid: #4fb6e8;
+
+  /* Status */
+  --color-status-live: #ff4d4d;
+  --color-status-free: #34d399;
+
+  /* Borders */
+  --color-border-hairline: rgba(255, 255, 255, 0.08);
+  --color-border-strong: rgba(255, 255, 255, 0.16);
+  --color-border-divider: rgba(255, 255, 255, 0.06);
+
+  /* Radius */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-2xl: 40px;
+
+  /* Type scale */
+  --text-display: 64px;
+  --text-display--line-height: 68px;
+  --text-h1: 40px;
+  --text-h1--line-height: 46px;
+  --text-h2: 28px;
+  --text-h2--line-height: 34px;
+  --text-h3: 22px;
+  --text-h3--line-height: 28px;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 26px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-caption: 14px;
+  --text-caption--line-height: 18px;
+  --text-label: 12px;
+  --text-label--line-height: 14px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 180ms;
+  --dur-base: 260ms;
+  --dur-slow: 360ms;
+  --dur-page: 480ms;
+
+  --font-sans: var(--font-inter), "SF Pro Display", system-ui, -apple-system, sans-serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Gradient + shadow utilities (not @theme-able) */
+@utility accent-gradient {
+  background-image: linear-gradient(100deg, #22d3ee 0%, #7c3aed 100%);
+}
+@utility shadow-resting {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+@utility shadow-focus {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 28px rgba(79, 182, 232, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+@utility shadow-overlay {
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.7), 0 8px 24px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ---------- Base ---------- */
+html {
+  color-scheme: dark;
+  height: 100%;
+}
+body {
+  height: 100%;
+  background: var(--color-bg-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  font-variation-settings: "wght" 450;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+::selection {
+  background: rgba(34, 211, 238, 0.3);
+}
+
+/* ---------- Brand text + logo gradient ---------- */
+.brand-text {
+  background: linear-gradient(100deg, #22d3ee 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Buttons (car-sized touch targets) ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 64px;
+  padding: 0 2rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  border: 1px solid transparent;
+  user-select: none;
+  transition: transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out), background var(--dur-base) var(--ease-out);
+}
+.btn:active {
+  transform: scale(0.97);
+}
+.btn-primary {
+  color: #07090d;
+  background-image: linear-gradient(100deg, #22d3ee 0%, #7c3aed 100%);
+  box-shadow: 0 14px 40px -12px rgba(79, 182, 232, 0.6);
+}
+.btn-primary:is(:hover, :focus-visible) {
+  box-shadow: 0 18px 50px -10px rgba(124, 58, 237, 0.65);
+}
+.btn-secondary {
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: var(--color-border-strong);
+  backdrop-filter: blur(16px);
+}
+.btn-secondary:is(:hover, :focus-visible) {
+  background: rgba(255, 255, 255, 0.12);
+}
+.btn-compact {
+  min-height: 48px;
+  padding: 0 1.1rem;
+  font-size: var(--text-body);
+  border-radius: var(--radius-sm);
+}
+
+/* ---------- Inputs ---------- */
+.field {
+  width: 100%;
+  min-height: 64px;
+  padding: 0 1.25rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: var(--color-text-primary);
+  font-size: var(--text-body-lg);
+  outline: none;
+  transition: border-color var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
+}
+.field::placeholder {
+  color: var(--color-text-tertiary);
+}
+.field:focus {
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.16);
+}
+
+/* ---------- Glass surfaces ---------- */
+.glass {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border-hairline);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+}
+
+/* ---------- Tiles ---------- */
+.tile {
+  position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid var(--color-border-hairline);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: transform var(--dur-base) var(--ease-out), box-shadow var(--dur-base) var(--ease-out);
+  isolation: isolate;
+}
+.tile:is(:hover, :focus-visible) {
+  transform: scale(1.05);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 28px rgba(79, 182, 232, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  outline: none;
+  z-index: 2;
+}
+.tile:active {
+  transform: scale(0.98);
+}
+/* signature gradient focus ring via mask */
+.tile:focus-visible::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: calc(var(--radius-lg) + 4px);
+  padding: 3px;
+  background: linear-gradient(100deg, #22d3ee 0%, #7c3aed 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  animation: ring-in var(--dur-base) var(--ease-spring);
+}
+@keyframes ring-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ---------- Badges ---------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 9px;
+  border-radius: var(--radius-xs);
+  backdrop-filter: blur(8px);
+}
+.badge-glass {
+  background: rgba(7, 9, 13, 0.45);
+  color: rgba(255, 255, 255, 0.9);
+}
+.badge-live {
+  background: rgba(255, 77, 77, 0.2);
+  color: #ff9a9a;
+}
+.badge-live .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-status-live);
+  animation: pulse 1.6s var(--ease-in-out) infinite;
+}
+.badge-free {
+  background: var(--color-status-free);
+  color: #07090d;
+}
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* ---------- Motion helpers ---------- */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-up {
+  animation: fadeUp var(--dur-page) var(--ease-in-out) both;
+}
+@keyframes kenburns {
+  0% {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.12) translate3d(-2%, -2%, 0);
+  }
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(3%, -4%, 0) scale(1.08);
+  }
+}
+.drift {
+  animation: drift 16s ease-in-out infinite;
+}
+
+/* ---------- Horizontal rows ---------- */
+.row-scroll {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+}
+.row-scroll::-webkit-scrollbar {
+  display: none;
+}
+.row-scroll > * {
+  scroll-snap-align: start;
+  flex: 0 0 auto;
+}
+
+/* ---------- Scrollbars (vertical) ---------- */
+*::-webkit-scrollbar {
+  width: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.16);
+  border-radius: 99px;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 120ms !important;
+  }
 }
