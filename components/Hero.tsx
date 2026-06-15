@@ -53,10 +53,10 @@ export function Hero() {
       {/* ambient brand glow */}
       <div
         key={`glow-${i}`}
-        className="pointer-events-none absolute -right-24 -top-32 h-[520px] w-[620px] rounded-full opacity-50 blur-3xl drift"
+        className="pointer-events-none absolute -right-24 -top-32 h-[520px] w-[620px] rounded-full opacity-50 blur-3xl"
         style={{ background: `radial-gradient(circle, #${s.brandHex}, transparent 62%)` }}
       />
-      <div className="pointer-events-none absolute -left-40 top-10 h-[420px] w-[520px] rounded-full bg-[var(--color-accent-violet)]/20 blur-3xl drift" style={{ animationDelay: "-7s" }} />
+      <div className="pointer-events-none absolute -left-40 top-10 h-[420px] w-[520px] rounded-full bg-[var(--color-accent-violet)]/20 blur-3xl" />
 
       {/* giant ghost logo */}
       <div key={`mark-${i}`} className="fade-up pointer-events-none absolute right-6 top-1/2 hidden -translate-y-1/2 text-white/[0.06] lg:block">
@@ -75,7 +75,7 @@ export function Hero() {
         </h1>
         <p className="mt-3 max-w-md text-[18px] leading-relaxed text-text-secondary">
           {s.type === "youtube"
-            ? "Search and watch right here in the built-in player — no app-switching."
+            ? "Search and watch in the built-in player when parked — for playback in Drive, use Live YouTube below."
             : s.type === "embed"
               ? "Live streams play right here in the built-in player."
               : `Opens ${s.name} in the car browser, tuned for the front seat.`}

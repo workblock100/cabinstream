@@ -12,6 +12,7 @@ export default function SettingsPage() {
   const [ready, setReady] = useState(false);
   const [url, setUrl] = useState("");
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!isAuthed()) {
@@ -26,7 +27,12 @@ export default function SettingsPage() {
 
   function save(e: React.FormEvent) {
     e.preventDefault();
-    setCabinUrl(url);
+    if (!setCabinUrl(url)) {
+      setError(true);
+      return;
+    }
+    setError(false);
+    setUrl(getCabinUrl());
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -52,9 +58,19 @@ export default function SettingsPage() {
             inputMode="url"
             placeholder="https://your-tunnel.trycloudflare.com"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              if (error) setError(false);
+            }}
             className="field"
+            aria-invalid={error}
+            aria-describedby={error ? "cabin-url-error" : undefined}
           />
+          {error && (
+            <p id="cabin-url-error" role="alert" className="text-sm text-[#f87171]">
+              That doesn&apos;t look like a valid URL. Try something like https://your-tunnel.trycloudflare.com
+            </p>
+          )}
           <div className="flex flex-wrap gap-3">
             <button type="submit" className="btn btn-primary">
               {saved ? (
@@ -71,6 +87,9 @@ export default function SettingsPage() {
               </a>
             )}
           </div>
+          <p role="status" aria-live="polite" className="sr-only">
+            {saved ? "Cabin Browser URL saved" : ""}
+          </p>
         </form>
 
         <div className="mt-10 rounded-xl border border-[var(--color-border-divider)] bg-white/[0.03] p-5 text-sm leading-relaxed text-text-tertiary">

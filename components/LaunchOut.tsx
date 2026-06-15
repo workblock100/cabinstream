@@ -43,7 +43,7 @@ export function LaunchOut({ service }: { service: Service }) {
         href={service.url}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-4 break-all text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
+        className="mt-4 inline-flex min-h-[44px] items-center break-all py-2 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
       >
         {service.url}
       </a>

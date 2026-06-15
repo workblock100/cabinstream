@@ -16,9 +16,25 @@ export function getCabinUrl(): string {
   return localStorage.getItem(KEY_CABIN_URL) ?? "";
 }
 
-export function setCabinUrl(url: string): void {
-  if (typeof window === "undefined") return;
+/**
+ * Stores the Cabin Browser URL after normalizing it. A scheme-less value like
+ * "my-tunnel.trycloudflare.com" would be treated as a RELATIVE path (404 on the
+ * deployed site), so we prepend https:// and reject anything that isn't a URL.
+ * @returns true if saved (or cleared); false if unparseable (existing value kept).
+ */
+export function setCabinUrl(url: string): boolean {
+  if (typeof window === "undefined") return false;
   const trimmed = url.trim();
-  if (trimmed) localStorage.setItem(KEY_CABIN_URL, trimmed);
-  else localStorage.removeItem(KEY_CABIN_URL);
+  if (!trimmed) {
+    localStorage.removeItem(KEY_CABIN_URL);
+    return true;
+  }
+  const candidate = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  try {
+    const parsed = new URL(candidate);
+    localStorage.setItem(KEY_CABIN_URL, parsed.toString());
+    return true;
+  } catch {
+    return false;
+  }
 }

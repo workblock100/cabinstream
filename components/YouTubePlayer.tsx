@@ -1,8 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { FEATURED_VIDEOS, parseYouTubeId } from "@/lib/services";
 import { searchYouTube, formatDuration, type YTResult } from "@/lib/youtube";
+import { getCabinUrl } from "@/lib/settings";
 import { SearchIcon, PlayIcon } from "./ui";
 
 interface NowPlaying {
@@ -27,6 +29,8 @@ const featuredItems: GridItem[] = FEATURED_VIDEOS.map((v) => ({
 }));
 
 export function YouTubePlayer() {
+  const router = useRouter();
+  const [cabinUrl, setCabinUrl] = useState<string | null>(null);
   const [current, setCurrent] = useState<NowPlaying>({
     id: FEATURED_VIDEOS[0].id,
     title: FEATURED_VIDEOS[0].title,
@@ -37,6 +41,12 @@ export function YouTubePlayer() {
   const [results, setResults] = useState<GridItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  // Monotonic id so only the most recent in-flight search updates state.
+  const reqId = useRef(0);
+
+  useEffect(() => {
+    setCabinUrl(getCabinUrl() || null);
+  }, []);
 
   const src = useMemo(
     () => `https://www.youtube-nocookie.com/embed/${current.id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
@@ -60,9 +70,13 @@ export function YouTubePlayer() {
       return;
     }
 
+    const myId = ++reqId.current;
     setLoading(true);
     setNote(null);
     const res = await searchYouTube(q);
+    // A newer search started since this began — drop this stale result
+    // (leave loading=true so the spinner stays up until the latest settles).
+    if (myId !== reqId.current) return;
     setLoading(false);
 
     if (res.length) {
@@ -93,6 +107,31 @@ export function YouTubePlayer() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 pb-12 sm:px-10 lg:px-16">
+      {/* Parked-only notice: this embed blacks out in Drive — point to the WebRTC Cabin Browser. */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-border-hairline)] bg-white/[0.03] px-4 py-3 text-sm">
+        <span className="text-text-secondary">
+          <span className="font-semibold text-text-primary">Parked only.</span> This player stops when the car is in Drive.
+        </span>
+        {cabinUrl ? (
+          <a
+            href={cabinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary btn-compact"
+          >
+            <PlayIcon className="h-4 w-4" />
+            Open Live YouTube
+          </a>
+        ) : (
+          <button
+            onClick={() => router.push("/settings")}
+            className="font-medium text-accent-cyan underline underline-offset-4"
+          >
+            Set up Live YouTube
+          </button>
+        )}
+      </div>
+
       {/* Player */}
       <div className="overflow-hidden rounded-lg border border-[var(--color-border-hairline)] bg-black shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
         <div className="relative aspect-video w-full">
@@ -129,10 +168,23 @@ export function YouTubePlayer() {
           {loading ? "Searching…" : "Search"}
         </button>
       </form>
-      {note && <p className="mt-2 text-sm text-amber-400/90">{note}</p>}
+      {note && (
+        <p role="status" aria-live="polite" className="mt-2 text-sm text-amber-400/90">
+          {note}
+        </p>
+      )}
+
+      {/* Screen-reader announcement for search state changes (persistent live region) */}
+      <p className="sr-only" role="status" aria-live="polite">
+        {loading
+          ? "Searching YouTube"
+          : results
+            ? `${results.length} result${results.length === 1 ? "" : "s"} for ${searchedTerm}`
+            : ""}
+      </p>
 
       {/* Grid */}
-      <div className="mt-8 flex items-center gap-3">
+      <div className="mt-8 flex items-center gap-3" aria-busy={loading}>
         <h2 className="text-h3 font-semibold tracking-tight">{gridLabel}</h2>
         {results && (
           <button
@@ -160,7 +212,7 @@ export function YouTubePlayer() {
             <button
               key={v.id}
               onClick={() => play(v)}
-              className={`group overflow-hidden rounded-2xl border text-left transition ${
+              className={`group overflow-hidden rounded-2xl border text-left outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)] ${
                 v.id === current.id
                   ? "border-accent-cyan ring-2 ring-[rgba(34,211,238,0.45)]"
                   : "border-[var(--color-border-hairline)] hover:border-[var(--color-border-strong)]"
