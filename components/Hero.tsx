@@ -110,7 +110,7 @@ export function Hero() {
             onClick={() => selectSlide(idx)}
             aria-label={`Show featured ${f.name}`}
             aria-current={idx === i ? "true" : undefined}
-            className="flex h-11 min-w-11 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)]"
+            className="flex h-11 min-w-11 items-center justify-center focus-ring rounded-full"
           >
             <span
               className={`h-2 rounded-full transition-all duration-300 ${

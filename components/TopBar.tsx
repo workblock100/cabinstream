@@ -47,7 +47,7 @@ export function TopBar({ backHref }: { backHref?: string }) {
           <button
             onClick={() => router.push(backHref)}
             aria-label="Back"
-            className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--color-border-hairline)] bg-white/5 outline-none transition hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)]"
+            className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--color-border-hairline)] bg-white/5 focus-ring transition hover:bg-white/10"
           >
             <BackIcon className="h-5 w-5" />
           </button>
@@ -59,7 +59,7 @@ export function TopBar({ backHref }: { backHref?: string }) {
         <button
           onClick={() => router.push("/watch/youtube")}
           aria-label="Search"
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--color-border-hairline)] bg-white/5 text-text-secondary outline-none transition hover:bg-white/10 hover:text-text-primary focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)]"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--color-border-hairline)] bg-white/5 text-text-secondary focus-ring transition hover:bg-white/10 hover:text-text-primary"
         >
           <SearchIcon className="h-[18px] w-[18px]" />
         </button>
@@ -70,7 +70,7 @@ export function TopBar({ backHref }: { backHref?: string }) {
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Open Live YouTube — plays while driving"
-            className="flex h-12 items-center gap-2 rounded-full border border-[var(--color-border-hairline)] bg-white/5 px-4 text-sm text-text-secondary outline-none transition hover:bg-white/10 hover:text-text-primary focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)]"
+            className="flex h-12 items-center gap-2 rounded-full border border-[var(--color-border-hairline)] bg-white/5 px-4 text-sm text-text-secondary focus-ring transition hover:bg-white/10 hover:text-text-primary"
           >
             <span className="h-2 w-2 rounded-full bg-[var(--color-status-live)] shadow-[0_0_10px_var(--color-status-live)]" />
             <span className="hidden sm:inline">Live</span>
@@ -80,7 +80,7 @@ export function TopBar({ backHref }: { backHref?: string }) {
         <button
           onClick={() => router.push("/settings")}
           aria-label="Settings"
-          className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--color-border-hairline)] bg-white/5 text-text-secondary outline-none transition hover:bg-white/10 hover:text-text-primary focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)]"
+          className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--color-border-hairline)] bg-white/5 text-text-secondary focus-ring transition hover:bg-white/10 hover:text-text-primary"
         >
           <SettingsIcon className="h-[18px] w-[18px]" />
         </button>
@@ -101,7 +101,7 @@ export function TopBar({ backHref }: { backHref?: string }) {
             router.push("/");
           }}
           aria-label="Sign out"
-          className="flex h-12 items-center gap-2 rounded-full border border-[var(--color-border-hairline)] bg-white/5 px-4 text-sm text-text-secondary outline-none transition hover:bg-white/10 hover:text-text-primary focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)]"
+          className="flex h-12 items-center gap-2 rounded-full border border-[var(--color-border-hairline)] bg-white/5 px-4 text-sm text-text-secondary focus-ring transition hover:bg-white/10 hover:text-text-primary"
         >
           <SignOutIcon className="h-[18px] w-[18px]" />
           <span className="hidden sm:inline">Sign out</span>

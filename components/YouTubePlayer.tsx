@@ -36,6 +36,12 @@ export function YouTubePlayer() {
   const [results, setResults] = useState<GridItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  // Autoplay-with-sound is blocked without a user gesture (Tesla browser /
+  // Chrome). First paint and the localStorage restore have no gesture, so we
+  // load WITHOUT autoplay there — the passenger sees YouTube's normal Play
+  // button (one tap starts it with sound) instead of a stalled black frame.
+  // Every in-app tile/paste tap flips this true via play() so those autoplay.
+  const [gestured, setGestured] = useState(false);
   // Monotonic id so only the most recent in-flight search updates state.
   const reqId = useRef(0);
 
@@ -49,11 +55,13 @@ export function YouTubePlayer() {
   }, []);
 
   const src = useMemo(
-    () => `https://www.youtube-nocookie.com/embed/${current.id}?autoplay=1&rel=0&modestbranding=1&playsinline=1`,
-    [current.id],
+    () =>
+      `https://www.youtube-nocookie.com/embed/${current.id}?rel=0&modestbranding=1&playsinline=1${gestured ? "&autoplay=1" : ""}`,
+    [current.id, gestured],
   );
 
   function play(item: LastVideo) {
+    setGestured(true);
     const next = { id: item.id, title: item.title, channel: item.channel };
     setCurrent(next);
     saveLastVideo(next);
@@ -219,7 +227,7 @@ export function YouTubePlayer() {
             <button
               key={v.id}
               onClick={() => play(v)}
-              className={`group overflow-hidden rounded-2xl border text-left outline-none transition focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)] ${
+              className={`group overflow-hidden rounded-2xl border focus-ring text-left transition ${
                 v.id === current.id
                   ? "border-accent-cyan ring-2 ring-[rgba(34,211,238,0.45)]"
                   : "border-[var(--color-border-hairline)] hover:border-[var(--color-border-strong)]"
