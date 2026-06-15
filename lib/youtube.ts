@@ -2,7 +2,7 @@
  * Keyless YouTube search via public Piped / Invidious instances.
  * No API key. Iterates instances, skipping any that are down, rate-limited,
  * or returning a Cloudflare/CAPTCHA HTML wall instead of JSON.
- * Instances verified live 2026-06-13; their status flips often, hence the fallback list.
+ * Instances verified live 2026-06-15; their status flips often, hence the fallback list.
  */
 
 export interface YTResult {
@@ -15,13 +15,11 @@ export interface YTResult {
 
 const PIPED_INSTANCES = [
   "https://api.piped.private.coffee",
-  "https://pipedapi.kavin.rocks",
-  "https://pipedapi.adminforge.de",
 ];
 
 const INVIDIOUS_INSTANCES = [
+  "https://inv.thepixora.com",
   "https://yt.chocolatemoo53.com",
-  "https://invidious.nerdvpn.de",
 ];
 
 const LAST_GOOD_KEY = "cs_yt_instance";

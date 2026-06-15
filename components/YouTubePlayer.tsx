@@ -93,21 +93,25 @@ export function YouTubePlayer() {
     if (myId !== reqId.current) return;
     setLoading(false);
 
-    if (res.length) {
+    const items = res
+      .map((r: YTResult) => ({
+        id: parseYouTubeId(r.videoId) ?? "",
+        title: r.title,
+        channel: r.author,
+        thumb: r.thumbnail,
+        duration: r.duration,
+      }))
+      // Drop any result whose videoId fails to parse (rotting public instances
+      // can return non-empty but malformed ids that survive searchYouTube's filter).
+      .filter((v) => v.id);
+
+    if (items.length) {
       setSearchedTerm(q);
-      setResults(
-        res
-          .map((r: YTResult) => ({
-            id: parseYouTubeId(r.videoId) ?? "",
-            title: r.title,
-            channel: r.author,
-            thumb: r.thumbnail,
-            duration: r.duration,
-          }))
-          .filter((v) => v.id),
-      );
+      setResults(items);
     } else {
-      // Keep the featured grid visible; surface a single honest note.
+      // No usable results (empty response OR every id filtered out) — keep the
+      // featured grid visible and surface a single honest note instead of a
+      // blank grid labeled `Results for "term"`.
       setResults(null);
       setNote("No results right now — paste a YouTube link to play it directly.");
     }
