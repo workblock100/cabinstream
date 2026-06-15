@@ -56,7 +56,7 @@ export default function LoginPage() {
           <div className="mt-8 flex flex-wrap gap-x-7 gap-y-3 text-sm text-text-secondary">
             <Feature>Big, glanceable touch tiles</Feature>
             <Feature>Built-in YouTube &amp; Twitch player</Feature>
-            <Feature>Installs to your home screen</Feature>
+            <Feature>Opens right in the car browser</Feature>
           </div>
         </section>
 

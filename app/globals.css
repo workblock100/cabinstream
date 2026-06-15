@@ -348,13 +348,6 @@ body {
   background: rgba(255, 255, 255, 0.16);
   border-radius: 99px;
 }
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
 
 @media (prefers-reduced-motion: reduce) {
   *,
