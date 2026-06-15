@@ -53,7 +53,7 @@ export function YouTubePlayer() {
     [current.id],
   );
 
-  function play(item: { id: string; title: string; channel: string }) {
+  function play(item: NowPlaying) {
     setCurrent({ id: item.id, title: item.title, channel: item.channel });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -65,6 +65,9 @@ export function YouTubePlayer() {
 
     const id = parseYouTubeId(q);
     if (id) {
+      reqId.current++; // invalidate any in-flight (possibly hung) search
+      setLoading(false); // re-enable Search + clear the skeleton immediately
+      setNote(null);
       play({ id, title: "Now playing", channel: "Pasted link" });
       setQuery("");
       return;
@@ -82,13 +85,15 @@ export function YouTubePlayer() {
     if (res.length) {
       setSearchedTerm(q);
       setResults(
-        res.map((r: YTResult) => ({
-          id: r.videoId,
-          title: r.title,
-          channel: r.author,
-          thumb: r.thumbnail,
-          duration: r.duration,
-        })),
+        res
+          .map((r: YTResult) => ({
+            id: parseYouTubeId(r.videoId) ?? "",
+            title: r.title,
+            channel: r.author,
+            thumb: r.thumbnail,
+            duration: r.duration,
+          }))
+          .filter((v) => v.id),
       );
     } else {
       // Keep the featured grid visible; surface a single honest note.

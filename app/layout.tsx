@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { RouteFocus } from "@/components/RouteFocus";
+import { ResourceHints } from "@/components/ResourceHints";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -34,7 +36,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <ResourceHints />
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
+        <RouteFocus />
+        {children}
+      </body>
     </html>
   );
 }

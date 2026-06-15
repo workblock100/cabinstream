@@ -23,7 +23,7 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="relative flex min-h-dvh flex-col overflow-hidden">
+    <main id="main" tabIndex={-1} className="relative flex min-h-dvh flex-col overflow-hidden outline-none">
       <div className="pointer-events-none absolute -left-40 -top-40 h-[460px] w-[460px] rounded-full bg-[var(--color-accent-cyan)]/15 blur-3xl drift" />
       <div className="pointer-events-none absolute -bottom-52 right-[-10%] h-[560px] w-[560px] rounded-full bg-[var(--color-accent-violet)]/20 blur-3xl drift" style={{ animationDelay: "-6s" }} />
 

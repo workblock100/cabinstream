@@ -4,15 +4,18 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Logo, BackIcon, SearchIcon, SignOutIcon, SettingsIcon } from "./ui";
 import { getEmail, logout } from "@/lib/session";
+import { getCabinUrl } from "@/lib/settings";
 
 export function TopBar({ backHref }: { backHref?: string }) {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
+  const [cabinUrl, setCabinUrl] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const [clock, setClock] = useState("");
 
   useEffect(() => {
     setEmail(getEmail());
+    setCabinUrl(getCabinUrl() || null);
 
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -52,7 +55,7 @@ export function TopBar({ backHref }: { backHref?: string }) {
         <Logo />
       </div>
 
-      <div className="flex items-center gap-2.5 sm:gap-3.5">
+      <nav aria-label="Primary" className="flex items-center gap-2.5 sm:gap-3.5">
         <button
           onClick={() => router.push("/watch/youtube")}
           aria-label="Search"
@@ -60,6 +63,19 @@ export function TopBar({ backHref }: { backHref?: string }) {
         >
           <SearchIcon className="h-[18px] w-[18px]" />
         </button>
+
+        {cabinUrl && (
+          <a
+            href={cabinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Live YouTube — plays while driving"
+            className="flex h-12 items-center gap-2 rounded-full border border-[var(--color-border-hairline)] bg-white/5 px-4 text-sm text-text-secondary outline-none transition hover:bg-white/10 hover:text-text-primary focus-visible:ring-2 focus-visible:ring-[var(--color-accent-cyan)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--color-bg-base)]"
+          >
+            <span className="h-2 w-2 rounded-full bg-[var(--color-status-live)] shadow-[0_0_10px_var(--color-status-live)]" />
+            <span className="hidden sm:inline">Live</span>
+          </a>
+        )}
 
         <button
           onClick={() => router.push("/settings")}
@@ -90,7 +106,7 @@ export function TopBar({ backHref }: { backHref?: string }) {
           <SignOutIcon className="h-[18px] w-[18px]" />
           <span className="hidden sm:inline">Sign out</span>
         </button>
-      </div>
+      </nav>
     </header>
   );
 }

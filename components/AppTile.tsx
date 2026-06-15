@@ -21,18 +21,18 @@ export function AppTile({ service, onOpen }: { service: Service; onOpen: () => v
 
   const isLive = service.id === "youtube" && !!cabinUrl;
 
-  function handleOpen() {
-    if (isLive) {
-      window.open(cabinUrl!, "_blank", "noopener,noreferrer");
-      return;
-    }
-    onOpen();
-  }
+  // When Live, hand off to the WebRTC Cabin Browser via a real anchor — the same
+  // native hand-off the banner and player use (long-pressable, no popup heuristics).
+  // Otherwise keep the in-app navigation button (onOpen → router.push).
+  const Tag = isLive ? "a" : "button";
+  const tagProps = isLive
+    ? ({ href: cabinUrl!, target: "_blank", rel: "noopener noreferrer" } as const)
+    : ({ type: "button" as const, onClick: onOpen });
 
   return (
     <div className="w-[158px] sm:w-[196px] lg:w-[216px]">
-      <button
-        onClick={handleOpen}
+      <Tag
+        {...tagProps}
         aria-label={isLive ? `Open ${service.name} — live, plays while driving` : `Open ${service.name}`}
         className="tile group flex aspect-[16/10] w-full items-center justify-center"
         style={{ background: `linear-gradient(145deg, ${from}, ${to})`, color: fg }}
@@ -61,7 +61,7 @@ export function AppTile({ service, onOpen }: { service: Service; onOpen: () => v
             <ArrowOutIcon className="h-4 w-4" />
           </span>
         )}
-      </button>
+      </Tag>
 
       <div className="mt-2.5 px-0.5">
         <div className="truncate text-[15px] font-semibold text-text-primary">{service.name}</div>

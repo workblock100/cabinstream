@@ -31,10 +31,10 @@ export default function HomePage() {
     setReady(true);
   }, [router]);
 
-  if (!ready) return <main className="min-h-dvh" />;
+  if (!ready) return <main id="main" tabIndex={-1} className="min-h-dvh outline-none" />;
 
   return (
-    <main className="min-h-dvh">
+    <main id="main" tabIndex={-1} className="min-h-dvh outline-none">
       <TopBar />
       <Hero />
       <CabinBrowserBanner />

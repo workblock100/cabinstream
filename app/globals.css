@@ -102,6 +102,26 @@ body {
 ::selection {
   background: rgba(34, 211, 238, 0.3);
 }
+.skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 100;
+  margin: 8px;
+  padding: 12px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--color-bg-overlay);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border-strong);
+  font-weight: 600;
+  transform: translateY(-150%);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--color-accent-cyan);
+  outline-offset: 2px;
+}
 
 /* ---------- Brand text + logo gradient ---------- */
 .brand-text {
@@ -289,21 +309,13 @@ body {
 .fade-up {
   animation: fadeUp var(--dur-page) var(--ease-in-out) both;
 }
-@keyframes kenburns {
-  0% {
-    transform: scale(1.04) translate3d(0, 0, 0);
-  }
-  100% {
-    transform: scale(1.12) translate3d(-2%, -2%, 0);
-  }
-}
 @keyframes drift {
   0%,
   100% {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(0, 0, 0);
   }
   50% {
-    transform: translate3d(3%, -4%, 0) scale(1.08);
+    transform: translate3d(3%, -4%, 0);
   }
 }
 .drift {
