@@ -1,27 +1,77 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getCabinUrl } from "@/lib/settings";
+import { PlayIcon } from "./ui";
+
+/** Pull a bare Twitch channel out of a pasted URL or raw handle. Returns "" if none. */
+function parseTwitchChannel(input: string): string {
+  const s = input.trim();
+  if (!s) return "";
+  // A pasted twitch.tv URL → take the first path segment (the channel).
+  const m = s.match(/twitch\.tv\/([a-zA-Z0-9_]{1,25})/i);
+  if (m) return m[1].toLowerCase();
+  // Otherwise treat it as a raw handle (strip a leading @ and anything non-handle).
+  const handle = s.replace(/^@/, "").match(/^[a-zA-Z0-9_]{1,25}/);
+  return handle ? handle[0].toLowerCase() : "";
+}
 
 /** In-app Twitch player. Twitch's embed requires a `parent` matching the host. */
 export function EmbedView() {
+  const router = useRouter();
   const [channel, setChannel] = useState("");
   const [active, setActive] = useState<string | null>(null);
-  const [host, setHost] = useState("localhost");
+  const [host, setHost] = useState<string | null>(null);
+  const [cabinUrl, setCabinUrl] = useState<string | null>(null);
 
   useEffect(() => {
     setHost(window.location.hostname || "localhost");
+    setCabinUrl(getCabinUrl() || null);
   }, []);
 
-  const src = active
-    ? `https://player.twitch.tv/?channel=${encodeURIComponent(active)}&parent=${host}&autoplay=true`
-    : null;
+  // Only build the embed once the real host is known — a stale "localhost"
+  // parent makes Twitch refuse to play on the deployed site.
+  const src =
+    active && host
+      ? `https://player.twitch.tv/?channel=${encodeURIComponent(active)}&parent=${host}&autoplay=true`
+      : null;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 pb-12 sm:px-10 lg:px-16">
+      {/* Parked-only notice: Twitch's HTML5 video blacks out in Drive — point to the WebRTC Cabin Browser. */}
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-border-hairline)] bg-white/[0.03] px-4 py-3 text-sm">
+        <span className="text-text-secondary">
+          <span className="font-semibold text-text-primary">Parked only.</span> This player stops when the car is in Drive.
+        </span>
+        {cabinUrl ? (
+          <a
+            href={cabinUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-secondary btn-compact"
+          >
+            <PlayIcon className="h-4 w-4" />
+            Open in Cabin Browser
+          </a>
+        ) : (
+          <button
+            onClick={() => router.push("/settings")}
+            className="font-medium text-accent-cyan underline underline-offset-4"
+          >
+            Set up Cabin Browser
+          </button>
+        )}
+      </div>
+
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (channel.trim()) setActive(channel.trim().toLowerCase());
+          const next = parseTwitchChannel(channel);
+          if (next) {
+            setActive(next);
+            setChannel(next);
+          }
         }}
         className="mb-5 flex flex-col gap-3 sm:flex-row"
       >

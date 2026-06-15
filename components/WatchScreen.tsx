@@ -24,11 +24,11 @@ export function WatchScreen() {
 
   const service: Service | undefined = getService(params.service);
 
-  if (!ready) return <main id="main" tabIndex={-1} className="min-h-dvh outline-none" />;
+  if (!ready) return <main id="main" tabIndex={-1} className="min-h-screen outline-none" />;
 
   if (!service) {
     return (
-      <main id="main" tabIndex={-1} className="flex min-h-dvh flex-col outline-none">
+      <main id="main" tabIndex={-1} className="flex min-h-screen flex-col outline-none">
         <TopBar backHref="/home" />
         <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 text-center">
           <h1 className="text-h2 font-semibold">Service not found</h1>
@@ -41,7 +41,7 @@ export function WatchScreen() {
   }
 
   return (
-    <main id="main" tabIndex={-1} className="flex min-h-dvh flex-col outline-none">
+    <main id="main" tabIndex={-1} className="flex min-h-screen flex-col outline-none">
       <TopBar backHref="/home" />
       {(service.type === "youtube" || service.type === "embed") && (
         <div className="mx-auto w-full max-w-6xl px-6 pb-1 pt-2 sm:px-10 lg:px-16">

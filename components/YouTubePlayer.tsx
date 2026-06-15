@@ -5,14 +5,8 @@ import { useRouter } from "next/navigation";
 import { FEATURED_VIDEOS, parseYouTubeId } from "@/lib/services";
 import { searchYouTube, formatDuration, type YTResult } from "@/lib/youtube";
 import { getCabinUrl } from "@/lib/settings";
-import { getLastVideo, saveLastVideo } from "@/lib/lastVideo";
+import { getLastVideo, saveLastVideo, type LastVideo } from "@/lib/lastVideo";
 import { SearchIcon, PlayIcon } from "./ui";
-
-interface NowPlaying {
-  id: string;
-  title: string;
-  channel: string;
-}
 
 interface GridItem {
   id: string;
@@ -32,7 +26,7 @@ const featuredItems: GridItem[] = FEATURED_VIDEOS.map((v) => ({
 export function YouTubePlayer() {
   const router = useRouter();
   const [cabinUrl, setCabinUrl] = useState<string | null>(null);
-  const [current, setCurrent] = useState<NowPlaying>({
+  const [current, setCurrent] = useState<LastVideo>({
     id: FEATURED_VIDEOS[0].id,
     title: FEATURED_VIDEOS[0].title,
     channel: FEATURED_VIDEOS[0].channel,
@@ -59,7 +53,7 @@ export function YouTubePlayer() {
     [current.id],
   );
 
-  function play(item: NowPlaying) {
+  function play(item: LastVideo) {
     const next = { id: item.id, title: item.title, channel: item.channel };
     setCurrent(next);
     saveLastVideo(next);

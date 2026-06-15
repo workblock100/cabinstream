@@ -26,7 +26,7 @@ export default function SettingsPage() {
     setReady(true);
   }, [router]);
 
-  if (!ready) return <main id="main" tabIndex={-1} className="min-h-dvh outline-none" />;
+  if (!ready) return <main id="main" tabIndex={-1} className="min-h-screen outline-none" />;
 
   function save(e: React.FormEvent) {
     e.preventDefault();
@@ -43,7 +43,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <main id="main" tabIndex={-1} className="flex min-h-dvh flex-col outline-none">
+    <main id="main" tabIndex={-1} className="flex min-h-screen flex-col outline-none">
       <TopBar backHref="/home" />
       <div className="mx-auto w-full max-w-2xl px-6 pb-16 pt-2 sm:px-10">
         <h1 className="text-h2 font-semibold tracking-tight">Cabin Browser</h1>
