@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FEATURED_VIDEOS, parseYouTubeId } from "@/lib/services";
 import { searchYouTube, formatDuration, type YTResult } from "@/lib/youtube";
 import { getCabinUrl } from "@/lib/settings";
+import { getLastVideo, saveLastVideo } from "@/lib/lastVideo";
 import { SearchIcon, PlayIcon } from "./ui";
 
 interface NowPlaying {
@@ -25,7 +26,7 @@ const featuredItems: GridItem[] = FEATURED_VIDEOS.map((v) => ({
   id: v.id,
   title: v.title,
   channel: v.channel,
-  thumb: `https://i.ytimg.com/vi/${v.id}/hqdefault.jpg`,
+  thumb: `https://i.ytimg.com/vi/${v.id}/mqdefault.jpg`,
 }));
 
 export function YouTubePlayer() {
@@ -46,6 +47,11 @@ export function YouTubePlayer() {
 
   useEffect(() => {
     setCabinUrl(getCabinUrl() || null);
+    // Restore whatever was playing last so reopening the PWA in the car
+    // doesn't drop you back on the demo song. Falls back to the featured
+    // video when nothing valid is stored.
+    const last = getLastVideo();
+    if (last) setCurrent(last);
   }, []);
 
   const src = useMemo(
@@ -54,7 +60,9 @@ export function YouTubePlayer() {
   );
 
   function play(item: NowPlaying) {
-    setCurrent({ id: item.id, title: item.title, channel: item.channel });
+    const next = { id: item.id, title: item.title, channel: item.channel };
+    setCurrent(next);
+    saveLastVideo(next);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -231,7 +239,7 @@ export function YouTubePlayer() {
                     <PlayIcon className="h-5 w-5 translate-x-px text-white" />
                   </span>
                 </span>
-                {typeof v.duration === "number" && v.duration > 0 && (
+                {typeof v.duration === "number" && (
                   <span className="absolute bottom-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[11px] font-medium tabular-nums">
                     {formatDuration(v.duration)}
                   </span>

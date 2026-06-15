@@ -45,11 +45,14 @@ export function Hero() {
   return (
     <section
       className="relative isolate flex min-h-[clamp(360px,46vh,560px)] items-end overflow-hidden"
+      aria-roledescription="carousel"
+      aria-label="Featured apps"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
+      <p className="sr-only" aria-live="polite" aria-atomic="true">{`Featured: ${s.name}`}</p>
       {/* ambient brand glow */}
       <div
         key={`glow-${i}`}
@@ -68,11 +71,18 @@ export function Hero() {
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(0deg,var(--color-bg-base)_0%,transparent_100%)]" />
 
       {/* content */}
-      <div key={`content-${i}`} className="fade-up relative z-10 max-w-2xl px-6 pb-12 sm:px-10 lg:px-16">
+      <div
+        key={`content-${i}`}
+        role="group"
+        aria-roledescription="slide"
+        aria-label={`${i + 1} of ${featured.length}: ${s.name}`}
+        className="fade-up relative z-10 max-w-2xl px-6 pb-12 sm:px-10 lg:px-16"
+      >
+        <h1 className="sr-only">CabinStream — featured apps</h1>
         <div className="text-label font-semibold uppercase tracking-[0.18em] text-accent-cyan">Featured</div>
-        <h1 className="mt-3 text-[clamp(40px,6vw,64px)] font-bold leading-[1.04] tracking-tight">
+        <h2 className="mt-3 text-[clamp(40px,6vw,64px)] font-bold leading-[1.04] tracking-tight">
           {s.name}
-        </h1>
+        </h2>
         <p className="mt-3 max-w-md text-[18px] leading-relaxed text-text-secondary">
           {s.type === "youtube"
             ? "Search and watch in the built-in player when parked — for playback in Drive, use Live YouTube below."

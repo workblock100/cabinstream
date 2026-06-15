@@ -10,7 +10,7 @@ export function LaunchOut({ service }: { service: Service }) {
   const { from, to, fg } = tileGradient(service);
 
   function open() {
-    window.open(service.url, "_blank", "noopener");
+    window.open(service.url, "_blank", "noopener,noreferrer");
   }
 
   return (

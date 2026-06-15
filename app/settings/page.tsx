@@ -11,6 +11,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
   const [url, setUrl] = useState("");
+  const [savedUrl, setSavedUrl] = useState("");
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(false);
 
@@ -19,7 +20,9 @@ export default function SettingsPage() {
       router.replace("/");
       return;
     }
-    setUrl(getCabinUrl());
+    const stored = getCabinUrl();
+    setUrl(stored);
+    setSavedUrl(stored);
     setReady(true);
   }, [router]);
 
@@ -32,7 +35,9 @@ export default function SettingsPage() {
       return;
     }
     setError(false);
-    setUrl(getCabinUrl());
+    const stored = getCabinUrl();
+    setUrl(stored);
+    setSavedUrl(stored);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -81,8 +86,8 @@ export default function SettingsPage() {
                 "Save"
               )}
             </button>
-            {url.trim() && (
-              <a href={url.trim()} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+            {savedUrl && (
+              <a href={savedUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
                 Open it <ArrowOutIcon className="h-5 w-5" />
               </a>
             )}

@@ -9,6 +9,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
     if (isAuthed()) router.replace("/home");
@@ -17,8 +18,13 @@ export default function LoginPage() {
   function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return;
+    setErr(null);
     setBusy(true);
-    login(email.trim());
+    if (!login(email.trim())) {
+      setBusy(false);
+      setErr("Couldn't save your sign-in. Enable site data / cookies for this site, then try again.");
+      return;
+    }
     router.push("/home");
   }
 
@@ -80,6 +86,11 @@ export default function LoginPage() {
                 <ArrowRightIcon className="h-5 w-5" />
               </button>
             </form>
+            {err && (
+              <p role="alert" className="mt-4 text-sm text-[var(--color-accent-red,#f87171)]">
+                {err}
+              </p>
+            )}
             <p className="mt-6 text-center text-xs leading-relaxed text-text-tertiary">
               For passenger entertainment. Don&apos;t watch video while driving.
             </p>

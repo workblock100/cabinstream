@@ -32,6 +32,7 @@ export function setCabinUrl(url: string): boolean {
   const candidate = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
   try {
     const parsed = new URL(candidate);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
     localStorage.setItem(KEY_CABIN_URL, parsed.toString());
     return true;
   } catch {
