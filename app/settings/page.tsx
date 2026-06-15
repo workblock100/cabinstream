@@ -105,6 +105,15 @@ export default function SettingsPage() {
             <li>Start the Cloudflare tunnel to get a public URL, and paste it above.</li>
           </ol>
         </div>
+
+        <div className="mt-4 rounded-xl border border-[var(--color-border-divider)] bg-white/[0.03] p-5 text-sm leading-relaxed text-text-tertiary">
+          <p className="mb-2 font-semibold text-text-secondary">If the stream is black or frozen in the car</p>
+          <ul className="list-disc space-y-1 pl-5">
+            <li>Your home computer and the Cabin Browser stack must be awake and running — it can&apos;t stream if it&apos;s asleep.</li>
+            <li>On weak cellular the WebRTC stream can stall, and it won&apos;t reconnect on its own in the car.</li>
+            <li>Reload the Live YouTube tab (pull down to refresh) to reconnect once you have signal.</li>
+          </ul>
+        </div>
       </div>
     </main>
   );

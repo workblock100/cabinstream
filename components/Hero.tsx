@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { getService } from "@/lib/services";
 import { trackOpen } from "@/lib/recents";
 import { comfortScrollTo } from "@/lib/scroll";
@@ -18,7 +18,7 @@ export function Hero() {
   const [interacted, setInteracted] = useState(false);
   // Announce ONLY user-initiated slide changes — not the 8s auto-advance — so a
   // screen reader isn't interrupted every 8 seconds (set in selectSlide).
-  const liveName = useRef("");
+  const [liveName, setLiveName] = useState("");
 
   useEffect(() => {
     if (paused || interacted) return;
@@ -43,7 +43,7 @@ export function Hero() {
 
   function selectSlide(idx: number) {
     setInteracted(true); // once the user takes control, stop auto-advance
-    liveName.current = featured[idx]?.name ?? "";
+    setLiveName(featured[idx]?.name ?? "");
     setI(idx);
   }
 
@@ -57,7 +57,7 @@ export function Hero() {
       onFocusCapture={() => setPaused(true)}
       onBlurCapture={() => setPaused(false)}
     >
-      <p className="sr-only" aria-live="polite" aria-atomic="true">{liveName.current ? `Featured: ${liveName.current}` : ""}</p>
+      <p className="sr-only" aria-live="polite" aria-atomic="true">{liveName ? `Featured: ${liveName}` : ""}</p>
       {/* ambient brand glow */}
       <div
         key={`glow-${i}`}
