@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { getService } from "@/lib/services";
 import { trackOpen } from "@/lib/recents";
+import { comfortScrollTo } from "@/lib/scroll";
 import { ServiceLogo } from "./ServiceLogo";
 import { PlayIcon, ArrowRightIcon } from "./ui";
 
@@ -37,7 +38,7 @@ export function Hero() {
   }
 
   function scrollDown() {
-    window.scrollTo({ top: window.innerHeight * 0.62, behavior: "smooth" });
+    comfortScrollTo(window.innerHeight * 0.62);
   }
 
   function selectSlide(idx: number) {

@@ -6,6 +6,7 @@ import { FEATURED_VIDEOS, parseYouTubeId } from "@/lib/services";
 import { searchYouTube, formatDuration, type YTResult } from "@/lib/youtube";
 import { getCabinUrl } from "@/lib/settings";
 import { getLastVideo, saveLastVideo, type LastVideo } from "@/lib/lastVideo";
+import { comfortScrollTo } from "@/lib/scroll";
 import { SearchIcon, PlayIcon } from "./ui";
 
 interface GridItem {
@@ -65,7 +66,7 @@ export function YouTubePlayer() {
     const next = { id: item.id, title: item.title, channel: item.channel };
     setCurrent(next);
     saveLastVideo(next);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    comfortScrollTo(0);
   }
 
   async function onSubmit(e: React.FormEvent) {

@@ -28,6 +28,8 @@ jobs:
         run: npm run build
         env:
           GH_PAGES: "1"
+      - name: Disable Jekyll (serve _next/* assets)
+        run: touch out/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
