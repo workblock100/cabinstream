@@ -149,7 +149,7 @@ export function YouTubePlayer() {
         ) : (
           <button
             onClick={() => router.push("/settings")}
-            className="font-medium text-accent-cyan underline underline-offset-4"
+            className="inline-flex min-h-[44px] items-center font-medium text-accent-cyan underline underline-offset-4"
           >
             Set up Live YouTube
           </button>

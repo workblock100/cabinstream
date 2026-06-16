@@ -24,7 +24,7 @@ export const SERVICES: Service[] = [
   { id: "netflix", name: "Netflix", slug: "netflix", brandHex: "E50914", category: "Video", type: "launch", url: "https://www.netflix.com", drm: true, tagline: "Movies & series" },
   { id: "disney-plus", name: "Disney+", slug: "disneyplus", brandHex: "0063E5", category: "Video", type: "launch", url: "https://www.disneyplus.com", drm: true, tagline: "Disney, Marvel, Star Wars", wordmark: "Disney+" },
   { id: "prime-video", name: "Prime Video", slug: "primevideo", brandHex: "00A8E1", category: "Video", type: "launch", url: "https://www.primevideo.com", drm: true, tagline: "Amazon movies & TV", wordmark: "prime" },
-  { id: "max", name: "Max", slug: "hbomax", brandHex: "002BE7", category: "Video", type: "launch", url: "https://play.max.com", drm: true, tagline: "HBO & more" },
+  { id: "max", name: "HBO Max", slug: "hbomax", brandHex: "002BE7", category: "Video", type: "launch", url: "https://www.hbomax.com", drm: true, tagline: "HBO & more" },
   { id: "hulu", name: "Hulu", slug: "hulu", brandHex: "1CE783", category: "Video", type: "launch", url: "https://www.hulu.com", drm: true, tagline: "TV & originals", wordmark: "hulu" },
   { id: "apple-tv-plus", name: "Apple TV+", slug: "appletv", brandHex: "111114", category: "Video", type: "launch", url: "https://tv.apple.com", drm: true, tagline: "Apple originals" },
   { id: "paramount-plus", name: "Paramount+", slug: "paramountplus", brandHex: "0064FF", category: "Video", type: "launch", url: "https://www.paramountplus.com", drm: true, tagline: "A mountain of TV" },
