@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import type { Service } from "@/lib/services";
 import { tileGradient } from "@/lib/services";
 import { getCabinUrl } from "@/lib/settings";
+import { trackOpen } from "@/lib/recents";
 import { ServiceLogo } from "./ServiceLogo";
 import { ArrowOutIcon } from "./ui";
 
@@ -26,7 +27,7 @@ export function AppTile({ service, onOpen }: { service: Service; onOpen: () => v
   // Otherwise keep the in-app navigation button (onOpen → router.push).
   const Tag = isLive ? "a" : "button";
   const tagProps = isLive
-    ? ({ href: cabinUrl!, target: "_blank", rel: "noopener noreferrer" } as const)
+    ? ({ href: cabinUrl!, target: "_blank", rel: "noopener noreferrer", onClick: () => trackOpen(service.id) } as const)
     : ({ type: "button" as const, onClick: onOpen });
 
   return (
@@ -38,7 +39,7 @@ export function AppTile({ service, onOpen }: { service: Service; onOpen: () => v
         style={{ background: `linear-gradient(145deg, ${from}, ${to})`, color: fg }}
       >
         <span className="transition-transform duration-300 ease-out group-hover:scale-110">
-          <ServiceLogo service={service} size={52} />
+          <ServiceLogo service={service} size={52} decorative />
         </span>
 
         <div className="absolute left-2.5 top-2.5 flex gap-1.5">

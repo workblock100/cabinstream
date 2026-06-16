@@ -73,7 +73,7 @@
 
 /* Shared keyboard-focus ring (cyan, offset from the bg) — single source of
    truth for what was a repeated 4-class string across TopBar / Hero /
-   YouTubePlayer. box-shadow ring is Chrome-88 safe. */
+   YouTubePlayer. A double box-shadow (bg + cyan) gives a clean offset ring. */
 @utility focus-ring {
   outline: none;
   &:focus-visible {

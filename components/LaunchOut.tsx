@@ -19,7 +19,7 @@ export function LaunchOut({ service }: { service: Service }) {
         className="tile flex h-36 w-36 items-center justify-center"
         style={{ background: `linear-gradient(145deg, ${from}, ${to})`, color: fg }}
       >
-        <ServiceLogo service={service} size={68} />
+        <ServiceLogo service={service} size={68} decorative />
       </div>
 
       <h1 className="mt-8 text-[40px] font-bold tracking-tight">Open {service.name}</h1>

@@ -68,7 +68,7 @@ export function Hero() {
 
       {/* giant ghost logo */}
       <div key={`mark-${i}`} className="fade-up pointer-events-none absolute right-6 top-1/2 hidden -translate-y-1/2 text-white/[0.06] lg:block">
-        <ServiceLogo service={s} size={300} />
+        <ServiceLogo service={s} size={300} decorative />
       </div>
 
       {/* scrims */}
