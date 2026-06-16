@@ -1,3 +1,25 @@
+import { afterEach, vi } from "vitest";
+import { cleanup } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
+
+// next/navigation isn't available outside the Next runtime — provide a no-op
+// router so components that call useRouter().push render in tests.
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    prefetch: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    refresh: vi.fn(),
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+// Unmount React trees between tests so queries don't see stale DOM.
+afterEach(() => cleanup());
+
 // Guarantee a fully working localStorage in the test env. jsdom/Node web-storage
 // support varies (some builds expose a partial global without .clear()), so we
 // install a deterministic in-memory Storage that the lib helpers read via the
@@ -30,3 +52,6 @@ Object.defineProperty(globalThis, "localStorage", { value: storage, configurable
 if (typeof window !== "undefined") {
   Object.defineProperty(window, "localStorage", { value: storage, configurable: true });
 }
+
+// localStorage carries over between tests by default; clear it before each.
+afterEach(() => storage.clear());
