@@ -58,9 +58,9 @@ export function Hero() {
       onBlurCapture={() => setPaused(false)}
     >
       <p className="sr-only" aria-live="polite" aria-atomic="true">{liveName ? `Featured: ${liveName}` : ""}</p>
-      {/* ambient brand glow */}
+      {/* ambient brand glow — no key: reconcile in place so the 48px blur isn't
+          re-rasterized on every 8s slide advance (only style.background changes). */}
       <div
-        key={`glow-${i}`}
         className="pointer-events-none absolute -right-24 -top-32 h-[520px] w-[620px] rounded-full opacity-50 blur-3xl"
         style={{ background: `radial-gradient(circle, #${s.brandHex}, transparent 62%)` }}
       />

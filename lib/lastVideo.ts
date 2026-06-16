@@ -2,7 +2,7 @@
 
 /**
  * Remembers the last YouTube video played in the built-in player so the in-car
- * loop survives a PWA reopen / Tesla-browser reload. Only the {id,title,channel}
+ * loop survives a Tesla-browser reload / tab restore. Only the {id,title,channel}
  * is kept, and the id is re-validated with parseYouTubeId on the way IN and OUT
  * so a corrupted localStorage value can never inject a bad iframe src.
  *

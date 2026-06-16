@@ -48,7 +48,7 @@ export function YouTubePlayer() {
 
   useEffect(() => {
     setCabinUrl(getCabinUrl() || null);
-    // Restore whatever was playing last so reopening the PWA in the car
+    // Restore whatever was playing last so reloading the car browser tab
     // doesn't drop you back on the demo song. Falls back to the featured
     // video when nothing valid is stored.
     const last = getLastVideo();
@@ -74,7 +74,11 @@ export function YouTubePlayer() {
     const q = query.trim();
     if (!q) return;
 
-    const id = parseYouTubeId(q);
+    // Only treat input as a pasted link/ID when it actually looks like a YouTube
+    // URL — otherwise a bare 11-char search word (e.g. "documentary", "cheesecakes")
+    // matches parseYouTubeId's id regex and loads a broken embed instead of searching.
+    const looksLikeUrl = /youtu\.?be|\/(embed|shorts|watch)|[?&]v=/.test(q);
+    const id = looksLikeUrl ? parseYouTubeId(q) : null;
     if (id) {
       reqId.current++; // invalidate any in-flight (possibly hung) search
       setLoading(false); // re-enable Search + clear the skeleton immediately
@@ -243,6 +247,7 @@ export function YouTubePlayer() {
                 <img
                   src={v.thumb}
                   alt=""
+                  referrerPolicy="no-referrer"
                   className="h-full w-full object-cover transition group-hover:scale-[1.03]"
                   loading="lazy"
                   decoding="async"

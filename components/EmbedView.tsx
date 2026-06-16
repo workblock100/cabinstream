@@ -5,16 +5,31 @@ import { useRouter } from "next/navigation";
 import { getCabinUrl } from "@/lib/settings";
 import { PlayIcon } from "./ui";
 
+/** Twitch site paths that are not channel names. */
+const TWITCH_RESERVED = new Set([
+  "directory", "videos", "video", "p", "settings", "subscriptions",
+  "friends", "wallet", "prime", "downloads", "search", "team", "teams",
+  "jobs", "turbo", "store", "about", "popout", "u", "moderator",
+]);
+
 /** Pull a bare Twitch channel out of a pasted URL or raw handle. Returns "" if none. */
 function parseTwitchChannel(input: string): string {
   const s = input.trim();
   if (!s) return "";
   // A pasted twitch.tv URL → take the first path segment (the channel).
   const m = s.match(/twitch\.tv\/([a-zA-Z0-9_]{1,25})/i);
-  if (m) return m[1].toLowerCase();
+  if (m) {
+    const seg = m[1].toLowerCase();
+    // Reserved path (e.g. /directory, /videos) → not a channel; bail out rather
+    // than loading a dead player. Must NOT fall through to the raw-handle branch,
+    // which would otherwise extract the URL scheme "https".
+    return TWITCH_RESERVED.has(seg) ? "" : seg;
+  }
   // Otherwise treat it as a raw handle (strip a leading @ and anything non-handle).
   const handle = s.replace(/^@/, "").match(/^[a-zA-Z0-9_]{1,25}/);
-  return handle ? handle[0].toLowerCase() : "";
+  if (!handle) return "";
+  const h = handle[0].toLowerCase();
+  return TWITCH_RESERVED.has(h) ? "" : h;
 }
 
 /** In-app Twitch player. Twitch's embed requires a `parent` matching the host. */

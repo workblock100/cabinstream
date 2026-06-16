@@ -43,7 +43,7 @@ export function CabinBrowserBanner() {
           ) : (
             <button onClick={() => router.push("/settings")} className="btn btn-secondary shrink-0">
               <SettingsIcon className="h-5 w-5" />
-              Set up Cabin Browser
+              Set up Live YouTube
             </button>
           )}
         </div>

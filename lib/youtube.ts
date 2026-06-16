@@ -29,7 +29,7 @@ async function fetchJson(url: string): Promise<unknown | null> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(url, { signal: ctrl.signal });
+    const res = await fetch(url, { signal: ctrl.signal, referrerPolicy: "no-referrer" });
     if (!res.ok) return null;
     const ct = res.headers.get("content-type") ?? "";
     if (!ct.includes("application/json")) return null; // CAPTCHA / HTML wall
@@ -65,7 +65,10 @@ function mapPiped(data: unknown): YTResult[] {
     .map((it) => {
       const o = it as Record<string, unknown>;
       const url = String(o.url ?? "");
-      const videoId = url.includes("v=") ? url.split("v=")[1].split("&")[0] : "";
+      // Anchor to the v= query param and capture exactly 11 id chars, so an earlier
+      // "…v=" param or trailing junk after the id can't corrupt the extraction.
+      const m = url.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
+      const videoId = m ? m[1] : "";
       return {
         videoId,
         title: String(o.title ?? ""),
@@ -119,16 +122,34 @@ export async function searchYouTube(query: string): Promise<YTResult[]> {
     if (i > 0) attempts.unshift(attempts.splice(i, 1)[0]);
   }
 
-  for (const a of attempts) {
+  // Race the instances instead of summing their 7s timeouts. Try the known-good
+  // instance alone first (one RTT on the happy path); if it's down or returns no
+  // results, fan out to the rest concurrently and take the first that succeeds.
+  type Attempt = (typeof attempts)[number];
+  const run = async (a: Attempt): Promise<YTResult[]> => {
     const data = await fetchJson(a.build());
-    if (!data) continue;
-    const results = a.map(data);
-    if (results.length) {
-      rememberGood(a.base);
-      return results;
+    const results = data ? a.map(data) : [];
+    if (!results.length) throw new Error("empty"); // let Promise.any skip this instance
+    rememberGood(a.base);
+    return results;
+  };
+
+  const first = good && attempts[0]?.base === good ? attempts[0] : undefined;
+  if (first) {
+    try {
+      return await run(first);
+    } catch {
+      /* fall through and race the remaining instances */
     }
   }
-  return [];
+
+  const rest = first ? attempts.slice(1) : attempts;
+  if (rest.length === 0) return [];
+  try {
+    return await Promise.any(rest.map(run));
+  } catch {
+    return []; // every remaining instance failed or returned empty
+  }
 }
 
 export function formatDuration(seconds: number): string {
