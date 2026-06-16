@@ -1,0 +1,30 @@
+name: Security audit
+
+# Runs `npm audit` on push and weekly (to catch newly-disclosed advisories even
+# without a code change). Like test.yml / size.yml this is a SEPARATE workflow
+# with no shared concurrency group, so it surfaces as its own check but can never
+# block or cancel the Pages deploy. Gates on HIGH+ only, so unfixable moderate
+# transitive advisories (e.g. a build-time dep) don't create red noise.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 9 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: npm audit (fail on high or critical)
+        run: npm audit --audit-level=high
