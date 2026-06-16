@@ -240,7 +240,16 @@ export function YouTubePlayer() {
             >
               <div className="relative aspect-video w-full bg-black/40">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={v.thumb} alt="" className="h-full w-full object-cover transition group-hover:scale-[1.03]" loading="lazy" />
+                <img
+                  src={v.thumb}
+                  alt=""
+                  className="h-full w-full object-cover transition group-hover:scale-[1.03]"
+                  loading="lazy"
+                  decoding="async"
+                  onError={(e) => {
+                    e.currentTarget.style.visibility = "hidden";
+                  }}
+                />
                 <span className="absolute inset-0 flex items-center justify-center opacity-0 transition group-hover:opacity-100">
                   <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur">
                     <PlayIcon className="h-5 w-5 translate-x-px text-white" />
