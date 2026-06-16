@@ -1,0 +1,27 @@
+name: Tests
+
+# Runs the Vitest suite on every push/PR. This is intentionally a SEPARATE
+# workflow from "Deploy to GitHub Pages" (deploy.yml) with no shared concurrency
+# group, so a test failure surfaces as its own check but never blocks or cancels
+# the Pages deploy. Tests are dev-time only and are excluded from `next build`.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Run unit tests
+        run: npm test

@@ -57,7 +57,7 @@ function lastGood(): string | null {
   }
 }
 
-function mapPiped(data: unknown): YTResult[] {
+export function mapPiped(data: unknown): YTResult[] {
   const items = (data as { items?: unknown[] })?.items;
   if (!Array.isArray(items)) return [];
   return items
@@ -80,7 +80,7 @@ function mapPiped(data: unknown): YTResult[] {
     .filter((r) => r.videoId);
 }
 
-function mapInvidious(data: unknown, base: string): YTResult[] {
+export function mapInvidious(data: unknown, base: string): YTResult[] {
   if (!Array.isArray(data)) return [];
   return data
     .filter((it) => (it as { type?: string }).type === "video")
