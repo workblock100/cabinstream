@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FEATURED_VIDEOS, parseYouTubeId } from "@/lib/services";
+import { FEATURED_VIDEOS, parseYouTubeId, looksLikeVideoUrl } from "@/lib/services";
 import { searchYouTube, formatDuration, type YTResult } from "@/lib/youtube";
 import { getLastVideo, saveLastVideo, type LastVideo } from "@/lib/lastVideo";
 import { comfortScrollTo } from "@/lib/scroll";
@@ -70,11 +70,10 @@ export function YouTubePlayer() {
     const q = query.trim();
     if (!q) return;
 
-    // Only treat input as a pasted link/ID when it actually looks like a YouTube
-    // URL — otherwise a bare 11-char search word (e.g. "documentary", "cheesecakes")
-    // matches parseYouTubeId's id regex and loads a broken embed instead of searching.
-    const looksLikeUrl = /youtu\.?be|\/(embed|shorts|watch)|[?&]v=/.test(q);
-    const id = looksLikeUrl ? parseYouTubeId(q) : null;
+    // Only treat input as a pasted link/ID when it looks like a YouTube URL —
+    // otherwise a bare 11-char search word (e.g. "documentary") parses as an id
+    // and would load a broken embed instead of searching.
+    const id = looksLikeVideoUrl(q) ? parseYouTubeId(q) : null;
     if (id) {
       reqId.current++; // invalidate any in-flight (possibly hung) search
       setLoading(false); // re-enable Search + clear the skeleton immediately

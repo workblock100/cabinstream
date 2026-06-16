@@ -130,3 +130,13 @@ export function parseYouTubeId(input: string): string | null {
   }
   return null;
 }
+
+/**
+ * True when the input looks like a YouTube URL rather than a bare search term.
+ * onSubmit uses this to decide PLAY-a-link vs SEARCH-the-text: a bare 11-char word
+ * like "documentary" parses as an id via parseYouTubeId but should still SEARCH, so
+ * we only treat input as a pasted link when it carries URL-ish markers.
+ */
+export function looksLikeVideoUrl(q: string): boolean {
+  return /youtu\.?be|\/(embed|shorts|watch)|[?&]v=/.test(q);
+}
