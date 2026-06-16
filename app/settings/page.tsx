@@ -53,7 +53,7 @@ export default function SettingsPage() {
           it keeps playing while the car is in Drive. Paste its public URL here.
         </p>
 
-        <form onSubmit={save} className="mt-7 space-y-4">
+        <form onSubmit={save} noValidate className="mt-7 space-y-4">
           <label htmlFor="cabin-url" className="block text-sm text-text-secondary">
             Cabin Browser URL
           </label>
@@ -111,7 +111,7 @@ export default function SettingsPage() {
           <ul className="list-disc space-y-1 pl-5">
             <li>Your home computer and the Cabin Browser stack must be awake and running — it can&apos;t stream if it&apos;s asleep.</li>
             <li>On weak cellular the WebRTC stream can stall, and it won&apos;t reconnect on its own in the car.</li>
-            <li>Reload the Live YouTube tab (pull down to refresh) to reconnect once you have signal.</li>
+            <li>Reload the Live YouTube tab (use the browser&apos;s reload button, or close it and reopen it from here) to reconnect once you have signal.</li>
           </ul>
         </div>
       </div>

@@ -39,6 +39,7 @@ export function EmbedView() {
   const [active, setActive] = useState<string | null>(null);
   const [host, setHost] = useState<string | null>(null);
   const [cabinUrl, setCabinUrl] = useState<string | null>(null);
+  const [err, setErr] = useState(false);
 
   useEffect(() => {
     setHost(window.location.hostname || "localhost");
@@ -84,23 +85,36 @@ export function EmbedView() {
           e.preventDefault();
           const next = parseTwitchChannel(channel);
           if (next) {
+            setErr(false);
             setActive(next);
             setChannel(next);
+          } else {
+            setErr(true);
           }
         }}
         className="mb-5 flex flex-col gap-3 sm:flex-row"
       >
         <input
           value={channel}
-          onChange={(e) => setChannel(e.target.value)}
+          onChange={(e) => {
+            setChannel(e.target.value);
+            if (err) setErr(false);
+          }}
           placeholder="Enter a Twitch channel (e.g. pokimane, xqc)…"
           aria-label="Twitch channel name"
+          aria-invalid={err}
+          aria-describedby={err ? "twitch-err" : undefined}
           className="field flex-1"
         />
         <button type="submit" className="btn btn-primary sm:w-auto">
           Watch live
         </button>
       </form>
+      {err && (
+        <p id="twitch-err" role="alert" className="-mt-3 mb-5 text-sm text-[#f87171]">
+          Enter a Twitch channel name (e.g. pokimane) or a twitch.tv channel link.
+        </p>
+      )}
 
       <div className="overflow-hidden rounded-lg border border-[var(--color-border-hairline)] bg-black shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
         <div className="relative aspect-video w-full">
