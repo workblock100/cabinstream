@@ -1,0 +1,30 @@
+name: Bundle size
+
+# Builds the static export and checks the gzipped client-JS budget. Like test.yml
+# this is a SEPARATE workflow with no shared concurrency group, so a regression
+# surfaces as its own check but never blocks or cancels the Pages deploy.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build static export
+        run: npm run build
+        env:
+          GH_PAGES: "1"
+      - name: Check bundle size budget
+        run: node scripts/check-bundle-size.mjs
