@@ -112,6 +112,7 @@ export default function SettingsPage() {
             <li>Your home computer and the Cabin Browser stack must be awake and running — it can&apos;t stream if it&apos;s asleep.</li>
             <li>On weak cellular the WebRTC stream can stall, and it won&apos;t reconnect on its own in the car.</li>
             <li>Reload the Live YouTube tab (use the browser&apos;s reload button, or close it and reopen it from here) to reconnect once you have signal.</li>
+            <li>If it still won&apos;t load, the tunnel may have been restarted — the public URL changes every time. Re-run the tunnel on your home computer and paste the new URL above.</li>
           </ul>
         </div>
       </div>
