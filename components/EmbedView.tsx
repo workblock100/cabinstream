@@ -1,9 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { getCabinUrl } from "@/lib/settings";
-import { PlayIcon } from "./ui";
+import { ParkedOnlyNotice } from "./ParkedOnlyNotice";
 
 /** Twitch site paths that are not channel names. */
 const TWITCH_RESERVED = new Set([
@@ -34,16 +32,13 @@ function parseTwitchChannel(input: string): string {
 
 /** In-app Twitch player. Twitch's embed requires a `parent` matching the host. */
 export function EmbedView() {
-  const router = useRouter();
   const [channel, setChannel] = useState("");
   const [active, setActive] = useState<string | null>(null);
   const [host, setHost] = useState<string | null>(null);
-  const [cabinUrl, setCabinUrl] = useState<string | null>(null);
   const [err, setErr] = useState(false);
 
   useEffect(() => {
     setHost(window.location.hostname || "localhost");
-    setCabinUrl(getCabinUrl() || null);
   }, []);
 
   // Only build the embed once the real host is known — a stale "localhost"
@@ -56,29 +51,7 @@ export function EmbedView() {
   return (
     <div className="mx-auto w-full max-w-6xl px-6 pb-12 sm:px-10 lg:px-16">
       {/* Parked-only notice: Twitch's HTML5 video blacks out in Drive — point to the WebRTC Cabin Browser. */}
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-border-hairline)] bg-white/[0.03] px-4 py-3 text-sm">
-        <span className="text-text-secondary">
-          <span className="font-semibold text-text-primary">Parked only.</span> This player stops when the car is in Drive.
-        </span>
-        {cabinUrl ? (
-          <a
-            href={cabinUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary btn-compact"
-          >
-            <PlayIcon className="h-4 w-4" />
-            Open in Cabin Browser
-          </a>
-        ) : (
-          <button
-            onClick={() => router.push("/settings")}
-            className="inline-flex min-h-[44px] items-center font-medium text-accent-cyan underline underline-offset-4"
-          >
-            Set up Cabin Browser
-          </button>
-        )}
-      </div>
+      <ParkedOnlyNotice openLabel="Open in Cabin Browser" setupLabel="Set up Cabin Browser" />
 
       <form
         onSubmit={(e) => {

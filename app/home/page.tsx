@@ -48,7 +48,7 @@ export default function HomePage() {
 
       <footer className="border-t border-[var(--color-border-divider)] px-6 py-8 text-sm leading-relaxed text-text-tertiary sm:px-10 lg:px-16">
         <p className="max-w-3xl">
-          <span className="text-text-secondary">Heads up —</span> Netflix, Disney+, Prime Video, Max,
+          <span className="text-text-secondary">Heads up —</span> Netflix, Disney+, Prime Video, HBO Max,
           Hulu, Apple TV+, Paramount+, Peacock and Crunchyroll are DRM-protected, so CabinStream opens
           them in the car browser; playback depends on what the browser supports. YouTube and Twitch run
           in the built-in player. For passenger entertainment — don&apos;t watch video while driving.

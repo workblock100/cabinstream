@@ -1,12 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { FEATURED_VIDEOS, parseYouTubeId } from "@/lib/services";
 import { searchYouTube, formatDuration, type YTResult } from "@/lib/youtube";
-import { getCabinUrl } from "@/lib/settings";
 import { getLastVideo, saveLastVideo, type LastVideo } from "@/lib/lastVideo";
 import { comfortScrollTo } from "@/lib/scroll";
+import { ParkedOnlyNotice } from "./ParkedOnlyNotice";
 import { SearchIcon, PlayIcon } from "./ui";
 
 interface GridItem {
@@ -25,8 +24,6 @@ const featuredItems: GridItem[] = FEATURED_VIDEOS.map((v) => ({
 }));
 
 export function YouTubePlayer() {
-  const router = useRouter();
-  const [cabinUrl, setCabinUrl] = useState<string | null>(null);
   const [current, setCurrent] = useState<LastVideo>({
     id: FEATURED_VIDEOS[0].id,
     title: FEATURED_VIDEOS[0].title,
@@ -47,7 +44,6 @@ export function YouTubePlayer() {
   const reqId = useRef(0);
 
   useEffect(() => {
-    setCabinUrl(getCabinUrl() || null);
     // Restore whatever was playing last so reloading the car browser tab
     // doesn't drop you back on the demo song. Falls back to the featured
     // video when nothing valid is stored.
@@ -132,29 +128,7 @@ export function YouTubePlayer() {
   return (
     <div className="mx-auto w-full max-w-6xl px-6 pb-12 sm:px-10 lg:px-16">
       {/* Parked-only notice: this embed blacks out in Drive — point to the WebRTC Cabin Browser. */}
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-[var(--color-border-hairline)] bg-white/[0.03] px-4 py-3 text-sm">
-        <span className="text-text-secondary">
-          <span className="font-semibold text-text-primary">Parked only.</span> This player stops when the car is in Drive.
-        </span>
-        {cabinUrl ? (
-          <a
-            href={cabinUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary btn-compact"
-          >
-            <PlayIcon className="h-4 w-4" />
-            Open Live YouTube
-          </a>
-        ) : (
-          <button
-            onClick={() => router.push("/settings")}
-            className="inline-flex min-h-[44px] items-center font-medium text-accent-cyan underline underline-offset-4"
-          >
-            Set up Live YouTube
-          </button>
-        )}
-      </div>
+      <ParkedOnlyNotice openLabel="Open Live YouTube" setupLabel="Set up Live YouTube" />
 
       {/* Player */}
       <div className="overflow-hidden rounded-lg border border-[var(--color-border-hairline)] bg-black shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
