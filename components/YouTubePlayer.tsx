@@ -160,6 +160,18 @@ export function YouTubePlayer() {
       ),
     );
   }
+  function playAll(items: GridItem[]) {
+    if (items.length === 0) return;
+    play(items[0]);
+    if (items.length > 1) {
+      mutateQueue(
+        addManyToQueue(
+          queue,
+          items.slice(1).map((v) => ({ id: v.id, title: v.title, channel: v.channel, thumb: v.thumb })),
+        ),
+      );
+    }
+  }
   function playNext() {
     if (queue.length === 0) return;
     const [head, ...rest] = queue;
@@ -431,6 +443,10 @@ export function YouTubePlayer() {
         <h2 className="text-h3 font-semibold tracking-tight">{gridLabel}</h2>
         {results && (
           <>
+            <button onClick={() => playAll(results)} className="btn btn-secondary btn-compact">
+              <PlayIcon className="h-4 w-4" />
+              Play all
+            </button>
             <button onClick={() => addAllToQueue(results)} className="btn btn-secondary btn-compact">
               <PlusIcon className="h-4 w-4" />
               Add all to Up next
