@@ -361,6 +361,15 @@ export function YouTubePlayer() {
           </ul>
         </section>
       )}
+      {queue.length === 0 && (
+        <p className="mt-3 flex flex-wrap items-center gap-1.5 text-xs text-text-tertiary">
+          Tip: tap
+          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white/10 text-text-secondary">
+            <PlusIcon className="h-3 w-3" />
+          </span>
+          on any video to line up what plays next.
+        </p>
+      )}
 
       {/* Search / paste */}
       <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row">

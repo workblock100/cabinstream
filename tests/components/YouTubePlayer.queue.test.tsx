@@ -47,6 +47,15 @@ describe("YouTubePlayer — Up Next queue", () => {
     expect(titles[1]).toContain(a.title);
   });
 
+  it("shows a discoverability tip only while the queue is empty", async () => {
+    render(<YouTubePlayer />);
+    expect(screen.getByText(/line up what plays next/i)).toBeInTheDocument();
+    await userEvent.click(
+      screen.getByRole("button", { name: `Add ${FEATURED_VIDEOS[0].title} to Up next` }),
+    );
+    expect(screen.queryByText(/line up what plays next/i)).toBeNull();
+  });
+
   it("removes a queued item with the panel's remove button", async () => {
     render(<YouTubePlayer />);
     const third = FEATURED_VIDEOS[2];
