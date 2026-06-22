@@ -8,6 +8,7 @@ import {
   getQueue,
   saveQueue,
   addToQueue,
+  addManyToQueue,
   removeFromQueue,
   type QueueItem,
 } from "@/lib/queue";
@@ -134,6 +135,14 @@ export function YouTubePlayer() {
   function playFromQueue(item: QueueItem) {
     mutateQueue(removeFromQueue(queue, item.id));
     play(item);
+  }
+  function addAllToQueue(items: GridItem[]) {
+    mutateQueue(
+      addManyToQueue(
+        queue,
+        items.map((v) => ({ id: v.id, title: v.title, channel: v.channel, thumb: v.thumb })),
+      ),
+    );
   }
   function playNext() {
     if (queue.length === 0) return;
@@ -329,15 +338,21 @@ export function YouTubePlayer() {
       </p>
 
       {/* Grid */}
-      <div className="mt-8 flex items-center gap-3" aria-busy={loading}>
+      <div className="mt-8 flex flex-wrap items-center gap-3" aria-busy={loading}>
         <h2 className="text-h3 font-semibold tracking-tight">{gridLabel}</h2>
         {results && (
-          <button
-            onClick={clearResults}
-            className="inline-flex min-h-[44px] items-center px-3 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
-          >
-            Clear
-          </button>
+          <>
+            <button onClick={() => addAllToQueue(results)} className="btn btn-secondary btn-compact">
+              <PlusIcon className="h-4 w-4" />
+              Add all to Up next
+            </button>
+            <button
+              onClick={clearResults}
+              className="inline-flex min-h-[44px] items-center px-3 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
+            >
+              Clear
+            </button>
+          </>
         )}
       </div>
 

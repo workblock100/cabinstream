@@ -29,6 +29,11 @@ export function removeFromQueue(list: QueueItem[], id: string): QueueItem[] {
   return list.filter((q) => q.id !== id);
 }
 
+/** Append many items at once (e.g. a whole search), keeping dedup + cap rules. */
+export function addManyToQueue(list: QueueItem[], items: QueueItem[]): QueueItem[] {
+  return items.reduce((acc, item) => addToQueue(acc, item), list);
+}
+
 export function getQueue(): QueueItem[] {
   if (typeof window === "undefined") return [];
   try {

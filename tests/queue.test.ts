@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { addToQueue, removeFromQueue, getQueue, saveQueue, type QueueItem } from "@/lib/queue";
+import {
+  addToQueue,
+  addManyToQueue,
+  removeFromQueue,
+  getQueue,
+  saveQueue,
+  type QueueItem,
+} from "@/lib/queue";
 
 const ID1 = "dQw4w9WgXcQ";
 const ID2 = "kJQP7kiw5Fk";
@@ -28,6 +35,19 @@ describe("addToQueue", () => {
     let list: QueueItem[] = [];
     for (let i = 0; i < 60; i++) list = addToQueue(list, mk(String(i).padStart(11, "a")));
     expect(list).toHaveLength(50);
+  });
+});
+
+describe("addManyToQueue", () => {
+  it("appends many, dropping dupes and bad ids", () => {
+    const start = addToQueue([], mk(ID1));
+    const out = addManyToQueue(start, [mk(ID1), mk("bad"), mk(ID2)]);
+    expect(out.map((q) => q.id)).toEqual([ID1, ID2]);
+  });
+
+  it("respects the cap across a bulk add", () => {
+    const many = Array.from({ length: 70 }, (_, i) => mk(String(i).padStart(11, "a")));
+    expect(addManyToQueue([], many)).toHaveLength(50);
   });
 });
 
