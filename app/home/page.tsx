@@ -9,6 +9,7 @@ import { Row } from "@/components/Row";
 import { CATEGORY_ORDER, getService, servicesByCategory, type Category, type Service } from "@/lib/services";
 import { isAuthed } from "@/lib/session";
 import { getRecents } from "@/lib/recents";
+import { ContinueWatching } from "@/components/ContinueWatching";
 
 const CATEGORY_TITLE: Record<Category, string> = {
   Video: "Video",
@@ -38,6 +39,8 @@ export default function HomePage() {
       <TopBar />
       <Hero />
       <CabinBrowserBanner />
+
+      <ContinueWatching />
 
       <div className="py-10">
         {recents.length > 0 && <Row title="Jump back in" services={recents} />}
