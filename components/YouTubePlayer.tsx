@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FEATURED_VIDEOS, parseYouTubeId, looksLikeVideoUrl } from "@/lib/services";
 import { searchYouTube, formatDuration, type YTResult } from "@/lib/youtube";
 import { getLastVideo, saveLastVideo, type LastVideo } from "@/lib/lastVideo";
+import { getSearches, rememberSearch, clearSearches } from "@/lib/searchHistory";
 import {
   getQueue,
   saveQueue,
@@ -55,6 +56,8 @@ export function YouTubePlayer() {
   // The "Up Next" queue — videos lined up to play back-to-back, persisted so a
   // car-tab reload keeps them.
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  // Recent search terms, for one-tap re-search on the touch keyboard.
+  const [searches, setSearches] = useState<string[]>([]);
   // Embed origin (for the YouTube IFrame API handshake). Known only client-side.
   const [origin, setOrigin] = useState("");
   // Autoplay-with-sound is blocked without a user gesture (Tesla browser /
@@ -71,6 +74,7 @@ export function YouTubePlayer() {
   useEffect(() => {
     setOrigin(window.location.origin);
     setQueue(getQueue());
+    setSearches(getSearches());
     // Restore whatever was playing last so reloading the car browser tab
     // doesn't drop you back on the demo song. Falls back to the featured
     // video when nothing valid is stored.
@@ -165,9 +169,8 @@ export function YouTubePlayer() {
     playNextRef.current = playNext;
   });
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    const q = query.trim();
+  async function runSearch(raw: string) {
+    const q = raw.trim();
     if (!q) return;
 
     // Only treat input as a pasted link/ID when it looks like a YouTube URL —
@@ -207,6 +210,7 @@ export function YouTubePlayer() {
     if (items.length) {
       setSearchedTerm(q);
       setResults(items);
+      setSearches(rememberSearch(q));
     } else {
       // No usable results (empty response OR every id filtered out) — keep the
       // featured grid visible and surface a single honest note instead of a
@@ -214,6 +218,16 @@ export function YouTubePlayer() {
       setResults(null);
       setNote("No results right now — paste a YouTube link to play it directly.");
     }
+  }
+
+  function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    runSearch(query);
+  }
+
+  function searchFor(term: string) {
+    setQuery(term);
+    runSearch(term);
   }
 
   function clearResults() {
@@ -352,6 +366,29 @@ export function YouTubePlayer() {
           {loading ? "Searching…" : "Search"}
         </button>
       </form>
+      {searches.length > 0 && (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-text-tertiary">Recent</span>
+          {searches.map((t) => (
+            <button
+              key={t}
+              onClick={() => searchFor(t)}
+              className="inline-flex min-h-[44px] items-center rounded-full border border-[var(--color-border-hairline)] px-3.5 text-sm text-text-secondary focus-ring transition hover:border-[var(--color-border-strong)] hover:text-text-primary"
+            >
+              {t}
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              clearSearches();
+              setSearches([]);
+            }}
+            className="inline-flex min-h-[44px] items-center px-2 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
+          >
+            Clear
+          </button>
+        </div>
+      )}
       {note && (
         <p role="status" aria-live="polite" className="mt-2 text-sm text-amber-400/90">
           {note}
