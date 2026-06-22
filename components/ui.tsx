@@ -94,6 +94,15 @@ export const ChevronDownIcon = (props: IconProps) => (
     <path d="m6 9 6 6 6-6" />
   </svg>
 );
+export const ShuffleIcon = (props: IconProps) => (
+  <svg {...base(props)}>
+    <path d="M16 3h5v5" />
+    <path d="M4 20 21 3" />
+    <path d="M21 16v5h-5" />
+    <path d="M15 15l6 6" />
+    <path d="M4 4l5 5" />
+  </svg>
+);
 export const SettingsIcon = (props: IconProps) => (
   <svg {...base(props)}>
     <circle cx="12" cy="12" r="3" />

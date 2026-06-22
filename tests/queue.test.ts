@@ -4,6 +4,7 @@ import {
   addManyToQueue,
   removeFromQueue,
   moveInQueue,
+  shuffleQueue,
   getQueue,
   saveQueue,
   type QueueItem,
@@ -56,6 +57,18 @@ describe("removeFromQueue", () => {
   it("removes the matching id and leaves the rest", () => {
     const list = addToQueue(addToQueue([], mk(ID1)), mk(ID2));
     expect(removeFromQueue(list, ID1).map((q) => q.id)).toEqual([ID2]);
+  });
+});
+
+describe("shuffleQueue", () => {
+  const ID3 = "9bZkp7q19f0";
+  it("returns the same items (a permutation) and same length, without mutating input", () => {
+    const list = [mk(ID1), mk(ID2), mk(ID3)];
+    const snapshot = list.map((q) => q.id);
+    const out = shuffleQueue(list);
+    expect(out).toHaveLength(3);
+    expect(out.map((q) => q.id).sort()).toEqual([ID1, ID2, ID3].sort());
+    expect(list.map((q) => q.id)).toEqual(snapshot); // input untouched
   });
 });
 

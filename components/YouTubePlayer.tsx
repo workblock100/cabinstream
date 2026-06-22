@@ -12,6 +12,7 @@ import {
   addManyToQueue,
   removeFromQueue,
   moveInQueue,
+  shuffleQueue,
   type QueueItem,
 } from "@/lib/queue";
 import { comfortScrollTo } from "@/lib/scroll";
@@ -25,6 +26,7 @@ import {
   SkipNextIcon,
   ChevronUpIcon,
   ChevronDownIcon,
+  ShuffleIcon,
 } from "./ui";
 
 interface GridItem {
@@ -282,12 +284,23 @@ export function YouTubePlayer() {
               <h2 className="font-semibold">Up next · {queue.length}</h2>
               <p className="text-xs text-text-tertiary">Plays automatically when each video ends.</p>
             </div>
-            <button
-              onClick={() => mutateQueue([])}
-              className="inline-flex min-h-[44px] items-center px-3 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
-            >
-              Clear all
-            </button>
+            <div className="flex items-center gap-2">
+              {queue.length > 1 && (
+                <button
+                  onClick={() => mutateQueue(shuffleQueue(queue))}
+                  className="btn btn-secondary btn-compact"
+                >
+                  <ShuffleIcon className="h-4 w-4" />
+                  Shuffle
+                </button>
+              )}
+              <button
+                onClick={() => mutateQueue([])}
+                className="inline-flex min-h-[44px] items-center px-3 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
+              >
+                Clear all
+              </button>
+            </div>
           </div>
           <ul className="mt-3 space-y-2">
             {queue.map((q, i) => (

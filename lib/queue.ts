@@ -34,6 +34,16 @@ export function addManyToQueue(list: QueueItem[], items: QueueItem[]): QueueItem
   return items.reduce((acc, item) => addToQueue(acc, item), list);
 }
 
+/** Return a new array with the items in random order (Fisher-Yates). */
+export function shuffleQueue(list: QueueItem[]): QueueItem[] {
+  const next = [...list];
+  for (let i = next.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [next[i], next[j]] = [next[j], next[i]];
+  }
+  return next;
+}
+
 /** Move an item one slot earlier (dir -1) or later (dir 1); clamped at the ends. */
 export function moveInQueue(list: QueueItem[], id: string, dir: -1 | 1): QueueItem[] {
   const i = list.findIndex((q) => q.id === id);
