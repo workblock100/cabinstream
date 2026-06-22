@@ -15,6 +15,13 @@ describe("EmbedView (Twitch)", () => {
     expect(document.querySelector("iframe")).toBeNull();
   });
 
+  it("remembers a watched channel as a recent chip", async () => {
+    render(<EmbedView />);
+    await userEvent.type(screen.getByLabelText("Twitch channel name"), "pokimane");
+    await userEvent.click(screen.getByRole("button", { name: "Watch live" }));
+    expect(await screen.findByRole("button", { name: "pokimane" })).toBeInTheDocument();
+  });
+
   it("renders the Twitch player iframe for a valid channel", async () => {
     render(<EmbedView />);
     await userEvent.type(screen.getByLabelText("Twitch channel name"), "pokimane");

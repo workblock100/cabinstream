@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ParkedOnlyNotice } from "./ParkedOnlyNotice";
 import { parseTwitchChannel } from "@/lib/twitch";
+import { getChannels, rememberChannel, clearChannels } from "@/lib/twitchHistory";
 
 /** In-app Twitch player. Twitch's embed requires a `parent` matching the host. */
 export function EmbedView() {
@@ -10,10 +11,24 @@ export function EmbedView() {
   const [active, setActive] = useState<string | null>(null);
   const [host, setHost] = useState<string | null>(null);
   const [err, setErr] = useState(false);
+  const [channels, setChannels] = useState<string[]>([]);
 
   useEffect(() => {
     setHost(window.location.hostname || "localhost");
+    setChannels(getChannels());
   }, []);
+
+  function watch(raw: string) {
+    const next = parseTwitchChannel(raw);
+    if (next) {
+      setErr(false);
+      setActive(next);
+      setChannel(next);
+      setChannels(rememberChannel(next));
+    } else {
+      setErr(true);
+    }
+  }
 
   // Only build the embed once the real host is known — a stale "localhost"
   // parent makes Twitch refuse to play on the deployed site.
@@ -30,14 +45,7 @@ export function EmbedView() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          const next = parseTwitchChannel(channel);
-          if (next) {
-            setErr(false);
-            setActive(next);
-            setChannel(next);
-          } else {
-            setErr(true);
-          }
+          watch(channel);
         }}
         className="mb-5 flex flex-col gap-3 sm:flex-row"
       >
@@ -61,6 +69,29 @@ export function EmbedView() {
         <p id="twitch-err" role="alert" className="-mt-3 mb-5 text-sm text-[#f87171]">
           Enter a Twitch channel name (e.g. pokimane) or a twitch.tv channel link.
         </p>
+      )}
+      {channels.length > 0 && (
+        <div className="-mt-2 mb-5 flex flex-wrap items-center gap-2">
+          <span className="text-xs text-text-tertiary">Recent</span>
+          {channels.map((c) => (
+            <button
+              key={c}
+              onClick={() => watch(c)}
+              className="inline-flex min-h-[44px] items-center rounded-full border border-[var(--color-border-hairline)] px-3.5 text-sm text-text-secondary focus-ring transition hover:border-[var(--color-border-strong)] hover:text-text-primary"
+            >
+              {c}
+            </button>
+          ))}
+          <button
+            onClick={() => {
+              clearChannels();
+              setChannels([]);
+            }}
+            className="inline-flex min-h-[44px] items-center px-2 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
+          >
+            Clear
+          </button>
+        </div>
       )}
 
       <div className="overflow-hidden rounded-lg border border-[var(--color-border-hairline)] bg-black shadow-[0_30px_80px_-30px_rgba(0,0,0,0.9)]">
