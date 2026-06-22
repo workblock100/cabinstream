@@ -56,6 +56,13 @@ describe("YouTubePlayer — Up Next queue", () => {
     expect(screen.queryByText(/line up what plays next/i)).toBeNull();
   });
 
+  it("announces queue actions to screen readers", async () => {
+    render(<YouTubePlayer />);
+    const v = FEATURED_VIDEOS[3];
+    await userEvent.click(screen.getByRole("button", { name: `Add ${v.title} to Up next` }));
+    expect(screen.getByText(new RegExp(`Added .*${v.title}.* to Up next`))).toBeInTheDocument();
+  });
+
   it("removes a queued item with the panel's remove button", async () => {
     render(<YouTubePlayer />);
     const third = FEATURED_VIDEOS[2];

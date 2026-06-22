@@ -58,6 +58,8 @@ export function YouTubePlayer() {
   // The "Up Next" queue — videos lined up to play back-to-back, persisted so a
   // car-tab reload keeps them.
   const [queue, setQueue] = useState<QueueItem[]>([]);
+  // Screen-reader announcement for queue actions (the queue UI changes silently).
+  const [queueMsg, setQueueMsg] = useState("");
   // Recent search terms, for one-tap re-search on the touch keyboard.
   const [searches, setSearches] = useState<string[]>([]);
   // Embed origin (for the YouTube IFrame API handshake). Known only client-side.
@@ -140,25 +142,30 @@ export function YouTubePlayer() {
     setQueue(next);
     saveQueue(next);
   }
+  const announce = (m: string) => setQueueMsg(m);
   const isQueued = (id: string) => queue.some((q) => q.id === id);
   function toggleQueue(v: GridItem) {
-    mutateQueue(
-      isQueued(v.id)
-        ? removeFromQueue(queue, v.id)
-        : addToQueue(queue, { id: v.id, title: v.title, channel: v.channel, thumb: v.thumb }),
-    );
+    if (isQueued(v.id)) {
+      mutateQueue(removeFromQueue(queue, v.id));
+      announce(`Removed “${v.title}” from Up next`);
+    } else {
+      mutateQueue(addToQueue(queue, { id: v.id, title: v.title, channel: v.channel, thumb: v.thumb }));
+      announce(`Added “${v.title}” to Up next`);
+    }
   }
   function playFromQueue(item: QueueItem) {
     mutateQueue(removeFromQueue(queue, item.id));
     play(item);
+    announce(`Playing “${item.title}”`);
   }
   function addAllToQueue(items: GridItem[]) {
-    mutateQueue(
-      addManyToQueue(
-        queue,
-        items.map((v) => ({ id: v.id, title: v.title, channel: v.channel, thumb: v.thumb })),
-      ),
+    const next = addManyToQueue(
+      queue,
+      items.map((v) => ({ id: v.id, title: v.title, channel: v.channel, thumb: v.thumb })),
     );
+    const added = next.length - queue.length;
+    mutateQueue(next);
+    announce(`Added ${added} to Up next`);
   }
   function playAll(items: GridItem[]) {
     if (items.length === 0) return;
@@ -171,12 +178,14 @@ export function YouTubePlayer() {
         ),
       );
     }
+    announce(`Playing “${items[0].title}”${items.length > 1 ? `, ${items.length - 1} queued` : ""}`);
   }
   function playNext() {
     if (queue.length === 0) return;
     const [head, ...rest] = queue;
     mutateQueue(rest);
     play(head);
+    announce(`Playing “${head.title}”`);
   }
   // Keep the message listener's playNext fresh without re-attaching it.
   useEffect(() => {
@@ -299,7 +308,10 @@ export function YouTubePlayer() {
             <div className="flex items-center gap-2">
               {queue.length > 1 && (
                 <button
-                  onClick={() => mutateQueue(shuffleQueue(queue))}
+                  onClick={() => {
+                    mutateQueue(shuffleQueue(queue));
+                    announce("Up next shuffled");
+                  }}
                   className="btn btn-secondary btn-compact"
                 >
                   <ShuffleIcon className="h-4 w-4" />
@@ -307,7 +319,10 @@ export function YouTubePlayer() {
                 </button>
               )}
               <button
-                onClick={() => mutateQueue([])}
+                onClick={() => {
+                  mutateQueue([]);
+                  announce("Up next cleared");
+                }}
                 className="inline-flex min-h-[44px] items-center px-3 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
               >
                 Clear all
@@ -362,7 +377,10 @@ export function YouTubePlayer() {
                   </>
                 )}
                 <button
-                  onClick={() => mutateQueue(removeFromQueue(queue, q.id))}
+                  onClick={() => {
+                    mutateQueue(removeFromQueue(queue, q.id));
+                    announce(`Removed “${q.title}” from Up next`);
+                  }}
                   aria-label={`Remove ${q.title} from Up next`}
                   className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-tertiary focus-ring transition hover:bg-white/[0.06] hover:text-text-primary"
                 >
@@ -436,6 +454,11 @@ export function YouTubePlayer() {
           : results
             ? `${results.length} result${results.length === 1 ? "" : "s"} for ${searchedTerm}`
             : ""}
+      </p>
+
+      {/* Screen-reader announcement for queue actions */}
+      <p className="sr-only" role="status" aria-live="polite">
+        {queueMsg}
       </p>
 
       {/* Grid */}
