@@ -34,6 +34,17 @@ export function addManyToQueue(list: QueueItem[], items: QueueItem[]): QueueItem
   return items.reduce((acc, item) => addToQueue(acc, item), list);
 }
 
+/** Move an item one slot earlier (dir -1) or later (dir 1); clamped at the ends. */
+export function moveInQueue(list: QueueItem[], id: string, dir: -1 | 1): QueueItem[] {
+  const i = list.findIndex((q) => q.id === id);
+  if (i === -1) return list;
+  const j = i + dir;
+  if (j < 0 || j >= list.length) return list;
+  const next = [...list];
+  [next[i], next[j]] = [next[j], next[i]];
+  return next;
+}
+
 export function getQueue(): QueueItem[] {
   if (typeof window === "undefined") return [];
   try {

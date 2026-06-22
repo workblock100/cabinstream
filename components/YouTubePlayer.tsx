@@ -10,11 +10,21 @@ import {
   addToQueue,
   addManyToQueue,
   removeFromQueue,
+  moveInQueue,
   type QueueItem,
 } from "@/lib/queue";
 import { comfortScrollTo } from "@/lib/scroll";
 import { ParkedOnlyNotice } from "./ParkedOnlyNotice";
-import { SearchIcon, PlayIcon, PlusIcon, CheckIcon, CloseIcon, SkipNextIcon } from "./ui";
+import {
+  SearchIcon,
+  PlayIcon,
+  PlusIcon,
+  CheckIcon,
+  CloseIcon,
+  SkipNextIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+} from "./ui";
 
 interface GridItem {
   id: string;
@@ -266,8 +276,8 @@ export function YouTubePlayer() {
             </button>
           </div>
           <ul className="mt-3 space-y-2">
-            {queue.map((q) => (
-              <li key={q.id} className="flex items-center gap-3">
+            {queue.map((q, i) => (
+              <li key={q.id} className="flex items-center gap-2">
                 <button
                   onClick={() => playFromQueue(q)}
                   className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 text-left focus-ring transition hover:bg-white/[0.04]"
@@ -292,6 +302,26 @@ export function YouTubePlayer() {
                     <span className="line-clamp-1 text-xs text-text-tertiary">{q.channel}</span>
                   </span>
                 </button>
+                {queue.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => mutateQueue(moveInQueue(queue, q.id, -1))}
+                      disabled={i === 0}
+                      aria-label={`Move ${q.title} up`}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-tertiary focus-ring transition hover:bg-white/[0.06] hover:text-text-primary disabled:pointer-events-none disabled:opacity-30"
+                    >
+                      <ChevronUpIcon className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => mutateQueue(moveInQueue(queue, q.id, 1))}
+                      disabled={i === queue.length - 1}
+                      aria-label={`Move ${q.title} down`}
+                      className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-tertiary focus-ring transition hover:bg-white/[0.06] hover:text-text-primary disabled:pointer-events-none disabled:opacity-30"
+                    >
+                      <ChevronDownIcon className="h-4 w-4" />
+                    </button>
+                  </>
+                )}
                 <button
                   onClick={() => mutateQueue(removeFromQueue(queue, q.id))}
                   aria-label={`Remove ${q.title} from Up next`}

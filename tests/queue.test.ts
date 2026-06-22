@@ -3,6 +3,7 @@ import {
   addToQueue,
   addManyToQueue,
   removeFromQueue,
+  moveInQueue,
   getQueue,
   saveQueue,
   type QueueItem,
@@ -55,6 +56,22 @@ describe("removeFromQueue", () => {
   it("removes the matching id and leaves the rest", () => {
     const list = addToQueue(addToQueue([], mk(ID1)), mk(ID2));
     expect(removeFromQueue(list, ID1).map((q) => q.id)).toEqual([ID2]);
+  });
+});
+
+describe("moveInQueue", () => {
+  const ID3 = "9bZkp7q19f0";
+  const three = () => [mk(ID1), mk(ID2), mk(ID3)];
+
+  it("moves an item up and down", () => {
+    expect(moveInQueue(three(), ID2, -1).map((q) => q.id)).toEqual([ID2, ID1, ID3]);
+    expect(moveInQueue(three(), ID2, 1).map((q) => q.id)).toEqual([ID1, ID3, ID2]);
+  });
+
+  it("clamps at the ends and ignores unknown ids", () => {
+    expect(moveInQueue(three(), ID1, -1).map((q) => q.id)).toEqual([ID1, ID2, ID3]);
+    expect(moveInQueue(three(), ID3, 1).map((q) => q.id)).toEqual([ID1, ID2, ID3]);
+    expect(moveInQueue(three(), "nope", -1).map((q) => q.id)).toEqual([ID1, ID2, ID3]);
   });
 });
 

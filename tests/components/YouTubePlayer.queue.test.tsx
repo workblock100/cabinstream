@@ -30,6 +30,23 @@ describe("YouTubePlayer — Up Next queue", () => {
     expect(screen.getByRole("button", { name: `Add ${second.title} to Up next` })).toBeInTheDocument();
   });
 
+  it("reorders the queue with the move-down button", async () => {
+    render(<YouTubePlayer />);
+    const a = FEATURED_VIDEOS[1];
+    const b = FEATURED_VIDEOS[2];
+    await userEvent.click(screen.getByRole("button", { name: `Add ${a.title} to Up next` }));
+    await userEvent.click(screen.getByRole("button", { name: `Add ${b.title} to Up next` }));
+    const panel = await screen.findByRole("region", { name: "Up next" });
+
+    // queue is [a, b]; move a down -> [b, a]
+    await userEvent.click(within(panel).getByRole("button", { name: `Move ${a.title} down` }));
+    const titles = within(panel)
+      .getAllByRole("listitem")
+      .map((li) => li.textContent || "");
+    expect(titles[0]).toContain(b.title);
+    expect(titles[1]).toContain(a.title);
+  });
+
   it("removes a queued item with the panel's remove button", async () => {
     render(<YouTubePlayer />);
     const third = FEATURED_VIDEOS[2];

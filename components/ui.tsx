@@ -84,6 +84,16 @@ export const SkipNextIcon = (props: IconProps) => (
     <rect x="16.5" y="5" width="2.5" height="14" rx="1.1" />
   </svg>
 );
+export const ChevronUpIcon = (props: IconProps) => (
+  <svg {...base(props)} strokeWidth={2.4}>
+    <path d="m6 15 6-6 6 6" />
+  </svg>
+);
+export const ChevronDownIcon = (props: IconProps) => (
+  <svg {...base(props)} strokeWidth={2.4}>
+    <path d="m6 9 6 6 6-6" />
+  </svg>
+);
 export const SettingsIcon = (props: IconProps) => (
   <svg {...base(props)}>
     <circle cx="12" cy="12" r="3" />
