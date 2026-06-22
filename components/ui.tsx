@@ -68,6 +68,22 @@ export const ArrowRightIcon = (props: IconProps) => (
     <path d="M5 12h14M13 6l6 6-6 6" />
   </svg>
 );
+export const PlusIcon = (props: IconProps) => (
+  <svg {...base(props)} strokeWidth={2.4}>
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+export const CloseIcon = (props: IconProps) => (
+  <svg {...base(props)} strokeWidth={2.4}>
+    <path d="M18 6 6 18M6 6l12 12" />
+  </svg>
+);
+export const SkipNextIcon = (props: IconProps) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M5 5v14l10-7z" />
+    <rect x="16.5" y="5" width="2.5" height="14" rx="1.1" />
+  </svg>
+);
 export const SettingsIcon = (props: IconProps) => (
   <svg {...base(props)}>
     <circle cx="12" cy="12" r="3" />

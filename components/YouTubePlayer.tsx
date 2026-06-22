@@ -4,9 +4,16 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { FEATURED_VIDEOS, parseYouTubeId, looksLikeVideoUrl } from "@/lib/services";
 import { searchYouTube, formatDuration, type YTResult } from "@/lib/youtube";
 import { getLastVideo, saveLastVideo, type LastVideo } from "@/lib/lastVideo";
+import {
+  getQueue,
+  saveQueue,
+  addToQueue,
+  removeFromQueue,
+  type QueueItem,
+} from "@/lib/queue";
 import { comfortScrollTo } from "@/lib/scroll";
 import { ParkedOnlyNotice } from "./ParkedOnlyNotice";
-import { SearchIcon, PlayIcon } from "./ui";
+import { SearchIcon, PlayIcon, PlusIcon, CheckIcon, CloseIcon, SkipNextIcon } from "./ui";
 
 interface GridItem {
   id: string;
@@ -34,6 +41,11 @@ export function YouTubePlayer() {
   const [results, setResults] = useState<GridItem[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  // The "Up Next" queue — videos lined up to play back-to-back, persisted so a
+  // car-tab reload keeps them.
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  // Embed origin (for the YouTube IFrame API handshake). Known only client-side.
+  const [origin, setOrigin] = useState("");
   // Autoplay-with-sound is blocked without a user gesture (Tesla browser /
   // Chrome). First paint and the localStorage restore have no gesture, so we
   // load WITHOUT autoplay there — the passenger sees YouTube's normal Play
@@ -42,8 +54,12 @@ export function YouTubePlayer() {
   const [gestured, setGestured] = useState(false);
   // Monotonic id so only the most recent in-flight search updates state.
   const reqId = useRef(0);
+  // Latest playNext, so the (once-attached) message listener never goes stale.
+  const playNextRef = useRef<() => void>(() => {});
 
   useEffect(() => {
+    setOrigin(window.location.origin);
+    setQueue(getQueue());
     // Restore whatever was playing last so reloading the car browser tab
     // doesn't drop you back on the demo song. Falls back to the featured
     // video when nothing valid is stored.
@@ -51,11 +67,49 @@ export function YouTubePlayer() {
     if (last) setCurrent(last);
   }, []);
 
-  const src = useMemo(
-    () =>
-      `https://www.youtube-nocookie.com/embed/${current.id}?rel=0&modestbranding=1&playsinline=1${gestured ? "&autoplay=1" : ""}`,
-    [current.id, gestured],
-  );
+  // Auto-advance: the embed (enablejsapi=1) posts state changes; when the video
+  // ENDS (playerState 0) we play the next queued video. Best-effort — if the
+  // handshake is blocked, the "Play next" button still advances manually.
+  useEffect(() => {
+    function onMessage(e: MessageEvent) {
+      if (typeof e.data !== "string" || !e.origin.includes("youtube")) return;
+      let d: { event?: string; info?: unknown };
+      try {
+        d = JSON.parse(e.data);
+      } catch {
+        return;
+      }
+      const ended =
+        (d.event === "onStateChange" && d.info === 0) ||
+        (d.event === "infoDelivery" &&
+          (d.info as { playerState?: number } | null)?.playerState === 0);
+      if (ended) playNextRef.current();
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+  }, []);
+
+  const src = useMemo(() => {
+    let s = `https://www.youtube-nocookie.com/embed/${current.id}?rel=0&modestbranding=1&playsinline=1&enablejsapi=1`;
+    if (origin) s += `&origin=${encodeURIComponent(origin)}`;
+    if (gestured) s += "&autoplay=1";
+    return s;
+  }, [current.id, gestured, origin]);
+
+  // Tell the freshly-loaded embed to start emitting state-change events.
+  function onIframeLoad(e: React.SyntheticEvent<HTMLIFrameElement>) {
+    const w = e.currentTarget.contentWindow;
+    if (!w) return;
+    try {
+      w.postMessage(JSON.stringify({ event: "listening", id: "cs-yt", channel: "widget" }), "*");
+      w.postMessage(
+        JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }),
+        "*",
+      );
+    } catch {
+      /* ignore — auto-advance just falls back to the manual button */
+    }
+  }
 
   function play(item: LastVideo) {
     setGestured(true);
@@ -64,6 +118,33 @@ export function YouTubePlayer() {
     saveLastVideo(next);
     comfortScrollTo(0);
   }
+
+  function mutateQueue(next: QueueItem[]) {
+    setQueue(next);
+    saveQueue(next);
+  }
+  const isQueued = (id: string) => queue.some((q) => q.id === id);
+  function toggleQueue(v: GridItem) {
+    mutateQueue(
+      isQueued(v.id)
+        ? removeFromQueue(queue, v.id)
+        : addToQueue(queue, { id: v.id, title: v.title, channel: v.channel, thumb: v.thumb }),
+    );
+  }
+  function playFromQueue(item: QueueItem) {
+    mutateQueue(removeFromQueue(queue, item.id));
+    play(item);
+  }
+  function playNext() {
+    if (queue.length === 0) return;
+    const [head, ...rest] = queue;
+    mutateQueue(rest);
+    play(head);
+  }
+  // Keep the message listener's playNext fresh without re-attaching it.
+  useEffect(() => {
+    playNextRef.current = playNext;
+  });
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -136,6 +217,7 @@ export function YouTubePlayer() {
             key={current.id}
             src={src}
             title={current.title}
+            onLoad={onIframeLoad}
             className="absolute inset-0 h-full w-full"
             allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
             allowFullScreen
@@ -143,10 +225,76 @@ export function YouTubePlayer() {
         </div>
       </div>
 
-      <div className="mt-4">
-        <div className="text-h3 font-semibold leading-tight tracking-tight">{current.title}</div>
-        <div className="text-sm text-text-tertiary">{current.channel}</div>
+      <div className="mt-4 flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="text-h3 font-semibold leading-tight tracking-tight">{current.title}</div>
+          <div className="text-sm text-text-tertiary">{current.channel}</div>
+        </div>
+        {queue.length > 0 && (
+          <button onClick={playNext} className="btn btn-secondary btn-compact shrink-0">
+            <SkipNextIcon className="h-4 w-4" />
+            Play next
+          </button>
+        )}
       </div>
+
+      {/* Up Next queue */}
+      {queue.length > 0 && (
+        <section
+          aria-label="Up next"
+          className="mt-4 rounded-lg border border-[var(--color-border-hairline)] bg-white/[0.03] p-4"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="font-semibold">Up next · {queue.length}</h2>
+              <p className="text-xs text-text-tertiary">Plays automatically when each video ends.</p>
+            </div>
+            <button
+              onClick={() => mutateQueue([])}
+              className="inline-flex min-h-[44px] items-center px-3 text-sm text-text-tertiary underline-offset-4 hover:text-text-primary hover:underline"
+            >
+              Clear all
+            </button>
+          </div>
+          <ul className="mt-3 space-y-2">
+            {queue.map((q) => (
+              <li key={q.id} className="flex items-center gap-3">
+                <button
+                  onClick={() => playFromQueue(q)}
+                  className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 text-left focus-ring transition hover:bg-white/[0.04]"
+                >
+                  <span className="relative aspect-video w-24 shrink-0 overflow-hidden rounded bg-black/40">
+                    {q.thumb && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={q.thumb}
+                        alt=""
+                        referrerPolicy="no-referrer"
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.visibility = "hidden";
+                        }}
+                      />
+                    )}
+                  </span>
+                  <span className="min-w-0">
+                    <span className="line-clamp-1 text-sm font-medium">{q.title}</span>
+                    <span className="line-clamp-1 text-xs text-text-tertiary">{q.channel}</span>
+                  </span>
+                </button>
+                <button
+                  onClick={() => mutateQueue(removeFromQueue(queue, q.id))}
+                  aria-label={`Remove ${q.title} from Up next`}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-text-tertiary focus-ring transition hover:bg-white/[0.06] hover:text-text-primary"
+                >
+                  <CloseIcon className="h-4 w-4" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {/* Search / paste */}
       <form onSubmit={onSubmit} className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -206,44 +354,58 @@ export function YouTubePlayer() {
       ) : (
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {grid.map((v) => (
-            <button
-              key={v.id}
-              onClick={() => play(v)}
-              className={`group overflow-hidden rounded-2xl border focus-ring text-left transition ${
-                v.id === current.id
-                  ? "border-accent-cyan ring-2 ring-[rgba(34,211,238,0.45)]"
-                  : "border-[var(--color-border-hairline)] hover:border-[var(--color-border-strong)]"
-              }`}
-            >
-              <div className="relative aspect-video w-full bg-black/40">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={v.thumb}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="h-full w-full object-cover transition group-hover:scale-[1.03]"
-                  loading="lazy"
-                  decoding="async"
-                  onError={(e) => {
-                    e.currentTarget.style.visibility = "hidden";
-                  }}
-                />
-                <span className="absolute inset-0 flex items-center justify-center opacity-0 transition group-hover:opacity-100">
-                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur">
-                    <PlayIcon className="h-5 w-5 translate-x-px text-white" />
+            <div key={v.id} className="group relative">
+              <button
+                onClick={() => play(v)}
+                className={`block w-full overflow-hidden rounded-2xl border focus-ring text-left transition ${
+                  v.id === current.id
+                    ? "border-accent-cyan ring-2 ring-[rgba(34,211,238,0.45)]"
+                    : "border-[var(--color-border-hairline)] hover:border-[var(--color-border-strong)]"
+                }`}
+              >
+                <div className="relative aspect-video w-full bg-black/40">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={v.thumb}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="h-full w-full object-cover transition group-hover:scale-[1.03]"
+                    loading="lazy"
+                    decoding="async"
+                    onError={(e) => {
+                      e.currentTarget.style.visibility = "hidden";
+                    }}
+                  />
+                  <span className="absolute inset-0 flex items-center justify-center opacity-0 transition group-hover:opacity-100">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-full bg-black/55 backdrop-blur">
+                      <PlayIcon className="h-5 w-5 translate-x-px text-white" />
+                    </span>
                   </span>
-                </span>
-                {typeof v.duration === "number" && (
-                  <span className="absolute bottom-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[11px] font-medium tabular-nums">
-                    {formatDuration(v.duration)}
-                  </span>
+                  {typeof v.duration === "number" && (
+                    <span className="absolute bottom-2 right-2 rounded bg-black/75 px-1.5 py-0.5 text-[11px] font-medium tabular-nums">
+                      {formatDuration(v.duration)}
+                    </span>
+                  )}
+                </div>
+                <div className="p-3">
+                  <div className="line-clamp-2 text-sm font-medium leading-snug">{v.title}</div>
+                  <div className="mt-1 truncate text-xs text-text-tertiary">{v.channel}</div>
+                </div>
+              </button>
+              <button
+                type="button"
+                onClick={() => toggleQueue(v)}
+                aria-label={isQueued(v.id) ? `Remove ${v.title} from Up next` : `Add ${v.title} to Up next`}
+                aria-pressed={isQueued(v.id)}
+                className="absolute right-2 top-2 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-black/65 backdrop-blur transition hover:bg-black/85 focus-ring"
+              >
+                {isQueued(v.id) ? (
+                  <CheckIcon className="h-4 w-4 text-accent-cyan" />
+                ) : (
+                  <PlusIcon className="h-4 w-4 text-white" />
                 )}
-              </div>
-              <div className="p-3">
-                <div className="line-clamp-2 text-sm font-medium leading-snug">{v.title}</div>
-                <div className="mt-1 truncate text-xs text-text-tertiary">{v.channel}</div>
-              </div>
-            </button>
+              </button>
+            </div>
           ))}
         </div>
       )}

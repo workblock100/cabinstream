@@ -55,3 +55,21 @@ if (typeof window !== "undefined") {
 
 // localStorage carries over between tests by default; clear it before each.
 afterEach(() => storage.clear());
+
+// jsdom doesn't implement matchMedia or scrollTo; comfortScrollTo (called by the
+// YouTube player) uses both. Stub them so rendering/interacting doesn't throw.
+if (typeof window !== "undefined") {
+  if (!window.matchMedia) {
+    window.matchMedia = ((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      addListener: () => {},
+      removeListener: () => {},
+      dispatchEvent: () => false,
+    })) as typeof window.matchMedia;
+  }
+  window.scrollTo = (() => {}) as typeof window.scrollTo;
+}
