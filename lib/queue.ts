@@ -84,3 +84,12 @@ export function saveQueue(list: QueueItem[]): void {
     /* ignore */
   }
 }
+
+export function clearQueue(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* ignore */
+  }
+}

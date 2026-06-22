@@ -6,6 +6,10 @@ import { TopBar } from "@/components/TopBar";
 import { ArrowOutIcon, CheckIcon } from "@/components/ui";
 import { isAuthed } from "@/lib/session";
 import { getCabinUrl, setCabinUrl } from "@/lib/settings";
+import { clearQueue } from "@/lib/queue";
+import { clearRecents } from "@/lib/recents";
+import { clearSearches } from "@/lib/searchHistory";
+import { clearChannels } from "@/lib/twitchHistory";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -14,6 +18,7 @@ export default function SettingsPage() {
   const [savedUrl, setSavedUrl] = useState("");
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState(false);
+  const [cleared, setCleared] = useState(false);
 
   useEffect(() => {
     if (!isAuthed()) {
@@ -40,6 +45,15 @@ export default function SettingsPage() {
     setSavedUrl(stored);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  function clearWatchData() {
+    clearQueue();
+    clearRecents();
+    clearSearches();
+    clearChannels();
+    setCleared(true);
+    setTimeout(() => setCleared(false), 2000);
   }
 
   return (
@@ -114,6 +128,23 @@ export default function SettingsPage() {
             <li>Reload the Live YouTube tab (use the browser&apos;s reload button, or close it and reopen it from here) to reconnect once you have signal.</li>
             <li>If it still won&apos;t load, the tunnel may have been restarted — the public URL changes every time. Re-run the tunnel on your home computer and paste the new URL above.</li>
           </ul>
+        </div>
+
+        <div className="mt-4 rounded-xl border border-[var(--color-border-divider)] bg-white/[0.03] p-5 text-sm leading-relaxed text-text-tertiary">
+          <p className="mb-1 font-semibold text-text-secondary">Watch data</p>
+          <p className="mb-3">
+            Clears your YouTube queue, recent searches, recent Twitch channels, and the &quot;Jump back
+            in&quot; row. Your sign-in and Cabin Browser URL are kept.
+          </p>
+          <button onClick={clearWatchData} className="btn btn-secondary">
+            {cleared ? (
+              <>
+                <CheckIcon className="h-5 w-5" /> Cleared
+              </>
+            ) : (
+              "Clear watch data"
+            )}
+          </button>
         </div>
       </div>
     </main>

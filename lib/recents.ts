@@ -16,6 +16,15 @@ export function trackOpen(serviceId: string): void {
   }
 }
 
+export function clearRecents(): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.removeItem(KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
 export function getRecents(): string[] {
   if (typeof window === "undefined") return [];
   try {
