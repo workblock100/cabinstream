@@ -21,8 +21,11 @@ pipeline is *not* subject to the in-motion video lock**. CabinStream is built ar
 
 **Built-in players (parked only)**
 - **YouTube** — a custom player with keyless search (public Piped / Invidious instances, with
-  multi-instance fallback) and "jump back in" history. Paste a link or search by words.
-- **Twitch** — in-app embed by channel.
+  multi-instance fallback). Paste a link or search by words, then build an **Up Next queue**: add any
+  result (or *Add all* / *Play all* a whole search), reorder, shuffle, and it **auto-advances** when
+  each video ends. The queue, your recent searches, and the "jump back in" row all persist across
+  car-tab reloads.
+- **Twitch** — in-app embed by channel, with one-tap chips for recently watched channels.
 
 Both show a clear *"Parked only"* notice and point to the Cabin Browser for in-drive playback.
 
